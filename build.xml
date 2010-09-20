@@ -62,4 +62,38 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <target name="-pre-init">
+        <property name="svn.config.dir" value="~/.subversion"/>
+    </target>
+
+    <target name="-pre-compile">
+        <exec outputproperty="build.current.revision" executable="svnversion">
+             <arg line="-n" />
+        </exec>
+        <exec output="svninfo.xml" executable="svn">
+          <arg line="info --xml --config-dir ${svn.config.dir}" />
+        </exec>
+        <xmlproperty file="svninfo.xml" collapseattributes="true"/>
+        <delete file="svninfo.xml"/>
+        <copy file="${src.dir}/com/workplacesystems/queuj/Version.tmpl" tofile="${src.dir}/com/workplacesystems/queuj/Version.java" overwrite="true"/>
+        <replace file="${src.dir}/com/workplacesystems/queuj/Version.java" token="@@REV@@" value="${build.current.revision}"/>
+        <replace file="${src.dir}/com/workplacesystems/queuj/Version.java" token="@@URL@@" value="${info.entry.url}"/>
+    </target>
+
+    <target name="get-version">
+        <taskdef classname="com.workplacesystems.queuj.utils.ant.GetVersionNumber" name="getversionnumber">
+            <classpath>
+                <pathelement location="${build.classes.dir}"/>
+            </classpath>
+        </taskdef>
+        <getversionnumber propertyName="qj.version" propertyDescName="qj.version.desc" versionClass="com.workplacesystems.queuj.Version"/>
+    </target>
+
+    <target depends="get-version" name="-post-compile">
+    </target>
+
+    <target name="-post-jar">
+        <move file="${dist.jar}" tofile="${dist.jar.dir}/queuj-${qj.version.desc}.jar"/>
+    </target>
 </project>

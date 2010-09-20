@@ -24,8 +24,6 @@ import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.resilience.RunOnlyOnce;
 import com.workplacesystems.queuj.restriction.JavaQueueRestriction;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.Name;
@@ -42,11 +40,8 @@ import org.jboss.seam.contexts.Contexts;
 @Scope(ScopeType.APPLICATION)
 public class QueujlInitialiser {
 
-    private final static Log log = LogFactory.getLog(QueujlInitialiser.class);
-
     @Create
     public void init() {
-        log.info("Initialising Queuj");
         System.setProperty("com.workplacesystems.queuj.QueujFactory", "com.workplacesystems.queuj.process.seam.SeamFactory");
 
         RunOnce occurrence = new RunOnce();

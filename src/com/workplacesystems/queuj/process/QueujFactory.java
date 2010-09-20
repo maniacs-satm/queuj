@@ -18,15 +18,20 @@ package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.QueueOwner;
+import com.workplacesystems.queuj.Version;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.queuj.utils.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author dave
  */
 public class QueujFactory {
+
+    private final static Log log = LogFactory.getLog(QueujFactory.class);
 
     private static final QueujFactory instance;
 
@@ -52,6 +57,8 @@ public class QueujFactory {
                 instance0 = new QueujFactory();
 
             instance = instance0;
+
+            log.info("Initialising Queuj " + Version.getVersionMini());
 
             instance.init();
         }
