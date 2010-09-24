@@ -279,47 +279,47 @@ public final class ProcessIndexes {
         return cic.getCount();
     }
 
-    public Object iterateNotRunProcesses(Queue queue, IterativeCallback ic)
+    public <R> R iterateNotRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateNotRunProcesses(queue, NULL_INDEX_KEY, ic);
     }
 
-    public Object iterateNotRunProcesses(Queue queue, Object key, IterativeCallback ic)
+    public <R> R iterateNotRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(not_run_processes, queue, key, ic);
     }
 
-    public Object iterateRunningProcesses(Queue queue, IterativeCallback ic)
+    public <R> R iterateRunningProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateRunningProcesses(queue, NULL_INDEX_KEY, ic);
     }
 
-    public Object iterateRunningProcesses(Queue queue, Object key, IterativeCallback ic)
+    public <R> R iterateRunningProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(running_processes, queue, key, ic);
     }
 
-    public Object iterateWaitingToRunProcesses(Queue queue, IterativeCallback ic)
+    public <R> R iterateWaitingToRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateWaitingToRunProcesses(queue, NULL_INDEX_KEY, ic);
     }
 
-    public Object iterateWaitingToRunProcesses(Queue queue, Object key, IterativeCallback ic)
+    public <R> R iterateWaitingToRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(locked_processes, queue, key, ic);
     }
 
-    public Object iterateFailedProcesses(Queue queue, IterativeCallback ic)
+    public <R> R iterateFailedProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateFailedProcesses(queue, NULL_INDEX_KEY, ic);
     }
 
-    public Object iterateFailedProcesses(Queue queue, Object key, IterativeCallback ic)
+    public <R> R iterateFailedProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(failed_processes, queue, key, ic);
     }
 
-    private Object iterateProcessIndexes(Map index_map, Queue queue, Object key, IterativeCallback ic)
+    private <R> R iterateProcessIndexes(Map index_map, Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         Map queue_index_map = (Map)index_map.get(queue.toString());
         if (queue_index_map != null)

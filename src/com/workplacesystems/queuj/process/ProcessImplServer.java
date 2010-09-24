@@ -19,18 +19,19 @@ package com.workplacesystems.queuj.process;
 import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.ProcessMatcher;
 import com.workplacesystems.queuj.ProcessServer;
-import com.workplacesystems.queuj.Queue;
+import com.workplacesystems.queuj.QueueListener;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.queuj.utils.Callback;
-import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
+import com.workplacesystems.queuj.utils.collections.FilterableCollection;
 import com.workplacesystems.queuj.utils.collections.FilterableList;
 import com.workplacesystems.queuj.utils.collections.IterativeCallback;
 import com.workplacesystems.queuj.utils.collections.SyncUtils;
 import com.workplacesystems.queuj.utils.collections.TransactionalBidiTreeMap;
 import com.workplacesystems.queuj.utils.collections.TransactionalSortedFilterableBidiMap;
+import com.workplacesystems.queuj.utils.collections.decorators.SynchronizedFilterableCollection;
 import com.workplacesystems.queuj.utils.collections.decorators.SynchronizedTransactionalSortedFilterableBidiMap;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ public class ProcessImplServer implements ProcessServer, Serializable {
     private final TransactionalSortedFilterableBidiMap<Integer,ProcessWrapper> processes;
 
     private final ProcessScheduler processScheduler = new ProcessScheduler();
+
+    private final FilterableCollection<QueueListener> queueListeners = SynchronizedFilterableCollection.decorate(new FilterableArrayList<QueueListener>());
 
     static synchronized ProcessImplServer newInstance(String queueOwner) {
         if (queueOwner == null)
@@ -137,6 +140,14 @@ public class ProcessImplServer implements ProcessServer, Serializable {
     public void commit() {
         processes.commit();
         indexes.finalizeIndexes(true);
+
+        (new IterativeCallback<QueueListener,Void>() {
+
+            @Override
+            protected void nextObject(QueueListener l) {
+                l.queueUpdated();
+            }
+        }).iterate(queueListeners);
     }
 
     public void rollback() {
@@ -175,6 +186,14 @@ public class ProcessImplServer implements ProcessServer, Serializable {
 
     <T> T withWriteLock(Callback<T> callback) {
         return SyncUtils.synchronizeWrite(processes, callback);
+    }
+
+    public void registerListener(QueueListener listener) {
+        queueListeners.add(listener);
+    }
+
+    public void removeListener(QueueListener listener) {
+        queueListeners.remove(listener);
     }
 
     boolean contains(ProcessWrapper process) {

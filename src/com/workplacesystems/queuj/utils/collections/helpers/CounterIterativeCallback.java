@@ -26,7 +26,7 @@ import com.workplacesystems.queuj.utils.collections.IterativeCallback;
  *
  * @author  Dave
  */
-public final class CounterIterativeCallback<T> extends IterativeCallback<T,Object>
+public final class CounterIterativeCallback<T> extends IterativeCallback<T,Integer>
 {
     /** Holds the number of counted items. */
     private int count = 0;
@@ -39,12 +39,12 @@ public final class CounterIterativeCallback<T> extends IterativeCallback<T,Objec
      * Overridden to just get the count, and nothing else.
      */
     @Override
-    public Object iterate(final FilterableCollection<? extends T> c)
+    public Integer iterate(final FilterableCollection<? extends T> c)
     {
         checkUsed();
         // No point doing the iteration. Just return size of collection.
         count = c.size();
-        return null;
+        return count;
     }
     
     /**

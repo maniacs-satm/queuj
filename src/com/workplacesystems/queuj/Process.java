@@ -78,6 +78,10 @@ public final class Process implements Serializable {
         getProcess().attach();
     }
 
+    public boolean isNotRun() {
+        return getProcess().isNotRun();
+    }
+
     public boolean isFailed() {
         return getProcess().isFailed();
     }

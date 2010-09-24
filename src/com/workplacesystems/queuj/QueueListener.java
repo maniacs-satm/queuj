@@ -16,26 +16,12 @@
 
 package com.workplacesystems.queuj;
 
-import com.workplacesystems.queuj.process.ProcessIndexes;
-import com.workplacesystems.queuj.process.ProcessWrapper;
-
 /**
- * This is the public interface to ProcessImplServer and PartitionedProcessImplServer.
  *
  * @author dave
  */
-public interface ProcessServer
-{
-    public ProcessWrapper getNewProcess(QueueOwner queueOwner, boolean is_persistent);
+public interface QueueListener {
 
-    public void submitProcess(ProcessWrapper process);
+    public void queueUpdated();
 
-    /** checks whether a process matching requirements is currently running or queued */
-    public boolean isProcessQueued (ProcessMatcher matcher);
-
-    public ProcessIndexes getProcessIndexes();
-
-    public void registerListener(QueueListener listener);
-
-    public void removeListener(QueueListener listener);
 }
