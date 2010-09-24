@@ -64,10 +64,16 @@
     -->
 
     <target name="-pre-init">
+        <property file="custom.properties"/>
+        <condition property="do.generate.version.java">
+            <and>
+                <isset property="generate.version.java"/>
+            </and>
+        </condition>
         <property name="svn.config.dir" value="~/.subversion"/>
     </target>
 
-    <target name="-pre-compile">
+    <target name="-pre-compile" if="do.generate.version.java">
         <exec outputproperty="build.current.revision" executable="svnversion">
              <arg line="-n" />
         </exec>
@@ -93,7 +99,29 @@
     <target depends="get-version" name="-post-compile">
     </target>
 
-    <target name="-post-jar">
+    <target depends="init,-javadoc-build" name="-post-jar">
         <move file="${dist.jar}" tofile="${dist.jar.dir}/queuj-${qj.version.desc}.jar"/>
+        <tar tarfile="${dist.jar.dir}/queuj.tar" longfile="gnu">
+          <tarfileset dir="." prefix="queuj-${qj.version.desc}">
+            <include name="**/*.*"/>
+            <exclude name="**/.svn"/>
+            <exclude name="custom.properties"/>
+            <exclude name="build/**"/>
+            <exclude name="dist/queuj-*.tar.gz"/>
+            <exclude name="dist/lib/**"/>
+            <exclude name="nbproject/private/**"/>
+            <exclude name="lib/jboss-seam/lib/**"/>
+          </tarfileset>
+          <tarfileset dir="lib/jboss-seam/lib/" prefix="queuj-${qj.version.desc}/lib/jboss-seam/lib">
+            <!-- Include only seam libraries needed for compile -->
+            <include name="jboss-seam.jar"/>
+            <include name="hibernate-entitymanager.jar"/>
+            <include name="hibernate-validator.jar"/>
+            <include name="ejb3-persistence.jar"/>
+            <include name="jta.jar"/>
+          </tarfileset>
+        </tar>
+        <gzip src="${dist.jar.dir}/queuj.tar" zipfile="${dist.jar.dir}/queuj-${qj.version.desc}.tar.gz"/>
+        <delete file="${dist.jar.dir}/queuj.tar"/>
     </target>
 </project>
