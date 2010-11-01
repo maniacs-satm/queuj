@@ -88,8 +88,9 @@
     </target>
 
     <target name="get-version">
-        <taskdef classname="com.workplacesystems.queuj.utils.ant.GetVersionNumber" name="getversionnumber">
+        <taskdef classname="com.workplacesystems.utilsj.ant.GetVersionNumber" name="getversionnumber">
             <classpath>
+                <pathelement location="lib/utilsj/utilsj-1.0.0-dev.jar"/>
                 <pathelement location="${build.classes.dir}"/>
             </classpath>
         </taskdef>
