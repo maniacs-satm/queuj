@@ -17,9 +17,10 @@
 package com.workplacesystems.queuj.utils;
 
 import com.workplacesystems.queuj.process.QueujFactory;
-import com.workplacesystems.queuj.utils.threadpool.ThreadPool;
-import com.workplacesystems.queuj.utils.threadpool.ThreadPoolCreator;
-import com.workplacesystems.queuj.utils.threadpool.WorkerThread;
+import com.workplacesystems.utilsj.Callback;
+import com.workplacesystems.utilsj.threadpool.ThreadPool;
+import com.workplacesystems.utilsj.threadpool.ThreadPoolCreator;
+import com.workplacesystems.utilsj.threadpool.WorkerThread;
 import java.util.Date;
 import java.util.HashMap;
 import org.apache.commons.logging.Log;
@@ -291,7 +292,7 @@ public abstract class BackgroundProcess implements Runnable
     /** either the standard run() method for a thread, or if in process, just calls it */
     public final void run()
     {
-        async.doAction();
+        async.action();
     }
     
     /** must be overridden by subclasses to perform the actual processing */

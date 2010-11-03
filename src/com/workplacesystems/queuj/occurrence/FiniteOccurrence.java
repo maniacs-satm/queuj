@@ -24,8 +24,8 @@ import com.workplacesystems.queuj.schedule.AbsoluteScheduleBuilder;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
 import com.workplacesystems.queuj.schedule.ScheduleFactoryImpl;
 import com.workplacesystems.queuj.schedule.ScheduleSetter;
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
-import com.workplacesystems.queuj.utils.collections.IterativeCallback;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.IterativeCallback;
 
 /**
  *

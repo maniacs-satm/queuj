@@ -19,7 +19,7 @@ package com.workplacesystems.queuj;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujFactory;
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
 import java.io.Serializable;
 import java.util.Locale;
 

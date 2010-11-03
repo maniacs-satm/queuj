@@ -20,7 +20,7 @@ import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Version;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
-import com.workplacesystems.queuj.utils.Callback;
+import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +59,7 @@ public class QueujFactory {
             instance = instance0;
 
             log.info("Initialising Queuj " + Version.getVersionMini());
+            log.info("Utilsj " + com.workplacesystems.utilsj.Version.getVersionMini());
 
             instance.init();
         }

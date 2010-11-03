@@ -16,7 +16,7 @@
 
 package com.workplacesystems.queuj.process;
 
-import com.workplacesystems.queuj.utils.Callback;
+import com.workplacesystems.utilsj.Callback;
 
 /**
  *

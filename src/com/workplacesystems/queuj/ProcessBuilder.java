@@ -17,14 +17,14 @@
 package com.workplacesystems.queuj;
 
 import com.workplacesystems.queuj.process.ProcessWrapper;
-import com.workplacesystems.queuj.utils.Callback;
+import com.workplacesystems.utilsj.Callback;
 import java.util.Locale;
 
 import com.workplacesystems.queuj.process.SequencedProcess;
 import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.utils.User;
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
 
 /**
  * ProcessBuilder is provided by a Queue to allow for the easy creation

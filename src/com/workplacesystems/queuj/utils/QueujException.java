@@ -16,28 +16,20 @@
 
 package com.workplacesystems.queuj.utils;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.workplacesystems.utilsj.UtilsjException;
 
 /**
  *
  * @author dave
  */
-public class QueujException extends RuntimeException
+public class QueujException extends UtilsjException
 {
-    private final static Log log = LogFactory.getLog(QueujException.class);
-
-    private final static String new_line = System.getProperty("line.separator");
-
     /**
      *
      */
     public QueujException()
     {
-        this(null, null);
+        super();
     }
 
     /**
@@ -46,7 +38,7 @@ public class QueujException extends RuntimeException
      */
     public QueujException(Exception e)
     {
-        this(e.getMessage(), e);
+        super(e);
     }
 
     /**
@@ -55,7 +47,7 @@ public class QueujException extends RuntimeException
      */
     public QueujException(String response)
     {
-        this(response, null);
+        super(response);
     }
 
     /**
@@ -66,23 +58,5 @@ public class QueujException extends RuntimeException
     public QueujException(String response, Exception e)
     {
         super(response, e);
-
-        String message = getMessage();
-
-        Throwable traced_exception = e;
-        while (traced_exception instanceof InvocationTargetException)
-        {
-            InvocationTargetException ite = (InvocationTargetException) traced_exception;
-            traced_exception = ite.getTargetException();
-        }
-        if (traced_exception instanceof QueujException)
-            return;
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pr = new PrintWriter(sw);
-        printStackTrace(pr);
-        message += new_line + new_line + sw.toString();
-
-        log.fatal(message);
     }
 }

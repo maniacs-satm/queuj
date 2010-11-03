@@ -20,8 +20,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
-import com.workplacesystems.queuj.utils.collections.IterativeCallback;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.IterativeCallback;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;

@@ -21,7 +21,7 @@ import com.workplacesystems.queuj.process.ProcessPersistence;
 import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
-import com.workplacesystems.queuj.utils.Callback;
+import com.workplacesystems.utilsj.Callback;
 import java.util.List;
 import org.jboss.seam.Component;
 import org.jboss.seam.async.Asynchronous;

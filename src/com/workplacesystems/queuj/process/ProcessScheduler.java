@@ -29,11 +29,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import com.workplacesystems.queuj.utils.BackgroundProcess;
-import com.workplacesystems.queuj.utils.Callback;
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
-import com.workplacesystems.queuj.utils.collections.IterativeCallback;
-import com.workplacesystems.queuj.utils.threadpool.ThreadObjectFactory;
-import com.workplacesystems.queuj.utils.threadpool.ThreadPoolCreator;
+import com.workplacesystems.utilsj.Callback;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.IterativeCallback;
+import com.workplacesystems.utilsj.threadpool.ThreadObjectFactory;
+import com.workplacesystems.utilsj.threadpool.ThreadPoolCreator;
 
 /**
  *

@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.workplacesystems.queuj.process.BatchProcessServer;
 import com.workplacesystems.queuj.utils.QueujException;
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
 
 /**
  * A Queue object controls how Processes run and are created. A Queue is not persistent except

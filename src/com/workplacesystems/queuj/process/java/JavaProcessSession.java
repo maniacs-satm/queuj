@@ -16,11 +16,11 @@
 
 package com.workplacesystems.queuj.process.java;
 
-import com.workplacesystems.queuj.utils.collections.IterativeCallback;
+import com.workplacesystems.utilsj.collections.IterativeCallback;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import com.workplacesystems.queuj.utils.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.FilterableArrayList;
 import java.util.Map.Entry;
 import java.util.UUID;
 

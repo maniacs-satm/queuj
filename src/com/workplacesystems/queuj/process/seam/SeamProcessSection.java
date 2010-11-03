@@ -20,7 +20,7 @@ import com.workplacesystems.queuj.process.ProcessParameters;
 import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.process.java.JavaProcessSession;
 import com.workplacesystems.queuj.process.java.ProcessSection;
-import com.workplacesystems.queuj.utils.collections.IterativeCallback;
+import com.workplacesystems.utilsj.collections.IterativeCallback;
 import java.io.Serializable;
 import java.util.Map.Entry;
 import org.jboss.seam.Component;
