@@ -104,7 +104,7 @@
         <move file="${dist.jar}" tofile="${dist.jar.dir}/queuj-${qj.version.desc}.jar"/>
         <tar tarfile="${dist.jar.dir}/queuj.tar" longfile="gnu">
           <tarfileset dir="." prefix="queuj-${qj.version.desc}">
-            <include name="**/*.*"/>
+            <include name="**/*"/>
             <exclude name="**/.svn"/>
             <exclude name="custom.properties"/>
             <exclude name="build/**"/>
