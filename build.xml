@@ -107,19 +107,39 @@
             <include name="**/*"/>
             <exclude name="**/.svn"/>
             <exclude name="custom.properties"/>
-            <exclude name="build/**"/>
+            <exclude name="**/build/**"/>
             <exclude name="dist/queuj-*.tar.gz"/>
             <exclude name="dist/lib/**"/>
-            <exclude name="nbproject/private/**"/>
+            <exclude name="**/nbproject/private/**"/>
             <exclude name="lib/jboss-seam/lib/**"/>
+            <exclude name="samples/**/dist/**"/>
           </tarfileset>
           <tarfileset dir="lib/jboss-seam/lib/" prefix="queuj-${qj.version.desc}/lib/jboss-seam/lib">
-            <!-- Include only seam libraries needed for compile -->
+            <!-- Seam libraries needed for compile of QueuJ-->
             <include name="jboss-seam.jar"/>
             <include name="hibernate-entitymanager.jar"/>
             <include name="hibernate-validator.jar"/>
             <include name="ejb3-persistence.jar"/>
             <include name="jta.jar"/>
+            <!-- Seam libraries needed for samples-->
+            <include name="antlr.jar"/>
+            <include name="commons-collections.jar"/>
+            <include name="commons-logging.jar"/>
+            <include name="dom4j.jar"/>
+            <include name="ejb-api.jar"/>
+            <include name="hibernate-annotations.jar"/>
+            <include name="hibernate-commons-annotations.jar"/>
+            <include name="hibernate-core.jar"/>
+            <include name="javassist.jar"/>
+            <include name="jboss-el.jar"/>
+            <include name="jboss-seam-ui.jar"/>
+            <include name="jboss-seam.jar"/>
+            <include name="jsf-api.jar"/>
+            <include name="jsf-facelets.jar"/>
+            <include name="jsf-impl.jar"/>
+            <include name="log4j.jar"/>
+            <include name="slf4j-api.jar"/>
+            <include name="slf4j-log4j12.jar"/>
           </tarfileset>
         </tar>
         <gzip src="${dist.jar.dir}/queuj.tar" zipfile="${dist.jar.dir}/queuj-${qj.version.desc}.tar.gz"/>
