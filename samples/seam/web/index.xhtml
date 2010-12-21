@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:s="http://jboss.com/products/seam/taglib">
+
+    <head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <title>queujSeamSample : Queuj Seam Sample Application</title>
+
+    </head>
+
+    <body>
+        <p>
+            <h:form id="testForm">
+                <input type="button" jsfc="h:commandButton" action="#{main.runJob1}" value="Run Test 1"/>
+                <input type="button" jsfc="h:commandButton" action="#{main.runJob2}" value="Run Test 2"/>
+                <input type="button" jsfc="h:commandButton" action="#{main.runJob3}" value="Run Test 3"/>
+                <input type="button" jsfc="h:commandButton" action="#{main.runJob4}" value="Run Test 4"/>
+                <input type="button" jsfc="h:commandButton" action="#{main.runJob5}" value="Run Test 5"/>
+            </h:form>
+        </p>
+    </body>
+
+</html>

@@ -1,0 +1,19 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+   <persistence-unit name="qjDatabase" transaction-type="RESOURCE_LOCAL">
+      <provider>org.hibernate.ejb.HibernatePersistence</provider>
+      <jta-data-source>java:comp/env/jdbc/queujDB</jta-data-source>
+      <class>com.workplacesystems.queuj.process.jpa.ProcessImpl</class>
+      <properties>
+         <property name="hibernate.hbm2ddl.auto" value="update"/>
+         <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider"/>
+         <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
+         <property name="hibernate.connection.isolation" value="2"/>
+         <property name="hibernate.show_sql" value="false"/>
+      </properties>
+   </persistence-unit>
+
+</persistence>
