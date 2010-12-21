@@ -327,7 +327,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     void updateRunErrorAndRestart() {
         updateRunError();
         if (updateRestart())
-            restart();
+            restart0();
     }
 
     void updateRunError() {
@@ -477,9 +477,14 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         if (!canRestart(user))
             return false;
 
-        restart();
+        return restart();
+    }
 
-        return true;
+    public boolean restart() {
+        if (deleted)
+            return false;
+
+        return restart0();
     }
 
     void setupOutputFile() {} // To be implemented
@@ -723,17 +728,18 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         start(new GregorianCalendar(), isFailed());
     }
 
-    private void restart() {
-        start(new GregorianCalendar(), true);
+    private boolean restart0() {
+        return start(new GregorianCalendar(), true);
     }
 
-    private void start(GregorianCalendar runTime, boolean isFailed) {
+    private boolean start(GregorianCalendar runTime, boolean isFailed) {
         synchronized (mutex) {
             if (processRunner != null)
-                return;
+                return false;
 
             processRunner = new ProcessRunner(this, runTime, isFailed);
             processRunner.doStart();
+            return true;
         }
     }
 }

@@ -19,11 +19,8 @@ package com.workplacesystems.queuj;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujFactory;
-import com.workplacesystems.utilsj.collections.FilterableArrayList;
 import java.io.Serializable;
-import java.util.Locale;
 
-import com.workplacesystems.queuj.process.SequencedProcess;
 import com.workplacesystems.queuj.utils.User;
 import java.util.GregorianCalendar;
 
@@ -90,12 +87,36 @@ public final class Process implements Serializable {
         return getProcess().getNextRunTime();
     }
 
+    public boolean restart(User user) {
+        return getProcess().restart(user);
+    }
+
+    public boolean restart() {
+        return getProcess().restart();
+    }
+
+    public boolean delete(User user) {
+        return getProcess().delete(user);
+    }
+
     public boolean delete() {
         return getProcess().delete();
     }
 
+    public String getProcessName() {
+        return getProcess().getProcessName();
+    }
+
     public String getDescription() {
         return getProcess().getDescription();
+    }
+
+    public String getStatusDescription() {
+        return getProcess().getStatusDescription();
+    }
+
+    public String getStatusImg() {
+        return getProcess().getStatusImg();
     }
 
     @Override
