@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 *** GENERATED FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 
@@ -17,7 +18,8 @@ is divided into following sections:
   - applet
   - cleanup
 
-        --><project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="QueuJSample-impl">
+        -->
+<project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="QueuJSample-impl">
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
             <not>
@@ -196,7 +198,7 @@ is divided into following sections:
             <attribute name="name"/>
             <attribute name="value"/>
             <sequential>
-                <property name="@{name}" value="${@{value}"/>
+                <property name="@{name}" value="${@{value}}"/>
             </sequential>
         </macrodef>
     </target>
@@ -499,13 +501,6 @@ is divided into following sections:
         <propertyfile file="${built-jar.properties}">
             <entry key="${basedir}" value=""/>
         </propertyfile>
-        <antcall target="-maybe-call-dep">
-            <param name="call.built.properties" value="${built-jar.properties}"/>
-            <param location="${project.QueuJ__1_0_x_}" name="call.subproject"/>
-            <param location="${project.QueuJ__1_0_x_}/build.xml" name="call.script"/>
-            <param name="call.target" value="jar"/>
-            <param name="transfer.built-jar.properties" value="${built-jar.properties}"/>
-        </antcall>
     </target>
     <target depends="init,-check-automatic-build,-clean-after-automatic-build" name="-verify-automatic-build"/>
     <target depends="init" name="-check-automatic-build">
@@ -859,13 +854,6 @@ is divided into following sections:
         <propertyfile file="${built-clean.properties}">
             <entry key="${basedir}" value=""/>
         </propertyfile>
-        <antcall target="-maybe-call-dep">
-            <param name="call.built.properties" value="${built-clean.properties}"/>
-            <param location="${project.QueuJ__1_0_x_}" name="call.subproject"/>
-            <param location="${project.QueuJ__1_0_x_}/build.xml" name="call.script"/>
-            <param name="call.target" value="clean"/>
-            <param name="transfer.built-clean.properties" value="${built-clean.properties}"/>
-        </antcall>
     </target>
     <target depends="init" name="-do-clean">
         <delete dir="${build.dir}"/>
