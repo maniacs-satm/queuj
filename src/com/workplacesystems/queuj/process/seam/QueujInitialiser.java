@@ -35,10 +35,10 @@ import org.jboss.seam.contexts.Contexts;
  *
  * @author dave
  */
-@Name("queujlInitialiser")
+@Name("queujInitialiser")
 @Startup(depends={"entityManager"})
 @Scope(ScopeType.APPLICATION)
-public class QueujlInitialiser {
+public class QueujInitialiser {
 
     @Create
     public void init() {
