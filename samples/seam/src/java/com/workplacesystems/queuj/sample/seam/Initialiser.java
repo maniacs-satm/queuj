@@ -20,7 +20,9 @@ import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.QueueBuilder;
 import com.workplacesystems.queuj.QueueRestriction;
+import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.seam.SeamProcessBuilder;
+import com.workplacesystems.utilsj.collections.helpers.HasLessThan;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
@@ -55,9 +57,10 @@ public class Initialiser {
 
         @Override
         protected boolean canRun(Queue queue, Process process) {
-            int running = process.getContainingServer().getProcessIndexes().countOfRunningProcesses(queue);
-            int waiting = process.getContainingServer().getProcessIndexes().countOfWaitingToRunProcesses(queue);
-            return (running + waiting) < 100;
+            HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(100);
+            hasLessThen = process.getContainingServer().getProcessIndexes().iterateRunningProcesses(queue, hasLessThen);
+            process.getContainingServer().getProcessIndexes().iterateWaitingToRunProcesses(queue, hasLessThen);
+            return hasLessThen.hasLess();
         }
     }
 }

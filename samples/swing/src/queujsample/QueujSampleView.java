@@ -22,10 +22,12 @@ import com.workplacesystems.queuj.QueueBuilder;
 import com.workplacesystems.queuj.QueueFactory;
 import com.workplacesystems.queuj.QueueRestriction;
 import com.workplacesystems.queuj.occurrence.RunOnce;
+import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.java.JavaProcessBuilder;
 import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
 import com.workplacesystems.queuj.utils.QueujException;
+import com.workplacesystems.utilsj.collections.helpers.HasLessThan;
 import java.util.List;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.jdesktop.application.Action;
@@ -201,9 +203,10 @@ public class QueujSampleView extends FrameView {
 
         @Override
         protected boolean canRun(Queue queue, Process process) {
-            int running = process.getContainingServer().getProcessIndexes().countOfRunningProcesses(queue);
-            int waiting = process.getContainingServer().getProcessIndexes().countOfWaitingToRunProcesses(queue);
-            return (running + waiting) < 100;
+            HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(100);
+            hasLessThen = process.getContainingServer().getProcessIndexes().iterateRunningProcesses(queue, hasLessThen);
+            process.getContainingServer().getProcessIndexes().iterateWaitingToRunProcesses(queue, hasLessThen);
+            return hasLessThen.hasLess();
         }
     }
 
