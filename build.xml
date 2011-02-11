@@ -102,6 +102,8 @@
 
     <target depends="init,-javadoc-build" name="-post-jar">
         <move file="${dist.jar}" tofile="${dist.jar.dir}/queuj-${qj.version.desc}.jar"/>
+        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/swing/lib/queuj/queuj.jar"/>
+        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/seam/lib/queuj/queuj.jar"/>
         <tar tarfile="${dist.jar.dir}/queuj.tar" longfile="gnu">
           <tarfileset dir="." prefix="queuj-${qj.version.desc}">
             <include name="**/*"/>
@@ -144,7 +146,5 @@
         </tar>
         <gzip src="${dist.jar.dir}/queuj.tar" zipfile="${dist.jar.dir}/queuj-${qj.version.desc}.tar.gz"/>
         <delete file="${dist.jar.dir}/queuj.tar"/>
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/swing/lib/queuj/queuj.jar"/>
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/seam/lib/queuj/queuj.jar"/>
     </target>
 </project>
