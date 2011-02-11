@@ -62,6 +62,8 @@ public class JPAFactory extends QueujFactory {
     @Override
     protected void init() {
         String persistenceUnitName = System.getProperty("com.workplacesystems.queuj.jpa.persistenceUnitName");
+        if (persistenceUnitName == null)
+            persistenceUnitName = System.getProperty("com.workplacesystems.jpa.persistenceUnitName");
         emf = Persistence.createEntityManagerFactory(persistenceUnitName);
 
         tlEm.set(emf.createEntityManager());

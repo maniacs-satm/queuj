@@ -90,7 +90,7 @@
     <target name="get-version">
         <taskdef classname="com.workplacesystems.utilsj.ant.GetVersionNumber" name="getversionnumber">
             <classpath>
-                <pathelement location="lib/utilsj/dist/utilsj-1.0.1-dev_r8.jar"/>
+                <pathelement location="lib/utilsj/dist/utilsj-1.0.1.jar"/>
                 <pathelement location="${build.classes.dir}"/>
             </classpath>
         </taskdef>
@@ -144,5 +144,7 @@
         </tar>
         <gzip src="${dist.jar.dir}/queuj.tar" zipfile="${dist.jar.dir}/queuj-${qj.version.desc}.tar.gz"/>
         <delete file="${dist.jar.dir}/queuj.tar"/>
+        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/swing/lib/queuj/queuj.jar"/>
+        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/seam/lib/queuj/queuj.jar"/>
     </target>
 </project>

@@ -53,7 +53,7 @@ public class QueujSampleView extends FrameView {
 
     static {
         System.setProperty("com.workplacesystems.queuj.QueujFactory", "com.workplacesystems.queuj.process.jpa.JPAFactory");
-        System.setProperty("com.workplacesystems.queuj.jpa.persistenceUnitName", "qjDatabase");
+        System.setProperty("com.workplacesystems.jpa.persistenceUnitName", "qjDatabase");
 
         QueueBuilder<JavaProcessBuilder> qb = QueueFactory.DEFAULT_QUEUE.newQueueBuilder();
         qb.setQueueRestriction(new TestQueueRestriction());
