@@ -44,6 +44,12 @@ public final class Version {
         return getVersion();
     }
 
+    public final static String getVersionMvn() {
+        if (getBranch().equals("trunk") || getURL().indexOf("/branches/") >= 0)
+            return getVersion() + "-SNAPSHOT";
+        return getVersion();
+    }
+
     public final static String getBranchDesc() {
         if (getURL().indexOf("/tags/") >= 0)
             return "Tag " + getBranch();
