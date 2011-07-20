@@ -329,7 +329,7 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
     {
         String queue_string = " {" + new_line;
         if (restriction != null)
-            queue_string += "  restriction: " + restriction.getClass().getName() + new_line;
+            queue_string += "  restriction: " + restriction.toString() + new_line;
         if (index != null)
             queue_string += "  index: " + index.getClass().getName() + new_line;
         if (deallocate_partition_delay != 0)

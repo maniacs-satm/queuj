@@ -52,4 +52,9 @@ public class SimpleQueueRestriction extends QueueRestriction
         
         return !blocked;
     }
+
+    @Override
+    protected String getSelfString() {
+        return ", max_concurrent = " + String.valueOf(max_concurrent);
+    }
 }

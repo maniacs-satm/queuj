@@ -46,4 +46,21 @@ public abstract class QueueRestriction implements Serializable
      * Can the supplied Process run for the supplied Queue.
      */
     protected abstract boolean canRun(Queue queue, Process process);
+
+    /**
+     * toString provides a unique String for this QueueRestriction.
+     */
+    @Override
+    public final String toString()
+    {
+        return getClass().getName() + getSelfString();
+    }
+
+    /**
+     * Called by toString and overridden by subclasses.
+     * Allows subclasses to output their unique String so that QueueRestrictions
+     * of the same class can be differentiated from each other.
+     */
+    protected String getSelfString() { return ""; }
+
 }
