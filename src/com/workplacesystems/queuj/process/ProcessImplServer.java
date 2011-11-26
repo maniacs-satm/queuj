@@ -227,7 +227,12 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return indexes.removeProcessFromIndex(process);
     }
 
-    public ProcessIndexes getProcessIndexes() {
-        return indexes;
+    public <R> R indexesWithReadLock(final ProcessIndexesCallback<R> indexesCallback) {
+        return indexes.withReadLock(new Callback<R>() {
+            @Override
+            protected void doAction() {
+                _return(indexesCallback.readIndexes(indexes));
+            }
+        });
     }
 }

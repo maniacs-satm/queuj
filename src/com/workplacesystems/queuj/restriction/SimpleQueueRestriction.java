@@ -20,6 +20,9 @@ import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.QueueRestriction;
 import com.workplacesystems.queuj.process.ProcessIndexes;
+import com.workplacesystems.queuj.process.ProcessIndexesCallback;
+import com.workplacesystems.queuj.process.ProcessWrapper;
+import com.workplacesystems.utilsj.collections.helpers.HasLessThan;
 
 /** SimpleQueueRrestriction implements a simple check on the number of jobs running in the queue so far.
  *  The restriction is specified at time of creation rather than explicitly preconfigured
@@ -40,17 +43,17 @@ public class SimpleQueueRestriction extends QueueRestriction
     }
 
     @Override
-    protected boolean canRun(Queue queue, Process process)
+    protected boolean canRun(final Queue queue, Process process)
     {
-        ProcessIndexes pi = process.getContainingServer().getProcessIndexes();
-        
-        int running_processes = pi.countOfRunningProcesses(queue);
-        
-        boolean blocked = running_processes >= max_concurrent;
-        if (!blocked)
-            blocked = running_processes + pi.countOfWaitingToRunProcesses(queue) >= max_concurrent;
-        
-        return !blocked;
+        return process.getContainingServer().indexesWithReadLock(new ProcessIndexesCallback<Boolean>() {
+            public Boolean readIndexes(ProcessIndexes indexes) {
+
+                HasLessThan<ProcessWrapper> max = new HasLessThan<ProcessWrapper>(max_concurrent);
+                max = indexes.iterateRunningProcesses(queue, max);
+                indexes.iterateWaitingToRunProcesses(queue, max);
+                return max.hasLess();
+            }
+        });
     }
 
     @Override

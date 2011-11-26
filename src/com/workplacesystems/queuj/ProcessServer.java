@@ -16,7 +16,7 @@
 
 package com.workplacesystems.queuj;
 
-import com.workplacesystems.queuj.process.ProcessIndexes;
+import com.workplacesystems.queuj.process.ProcessIndexesCallback;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 
 /**
@@ -33,7 +33,7 @@ public interface ProcessServer
     /** checks whether a process matching requirements is currently running or queued */
     public boolean isProcessQueued (ProcessMatcher matcher);
 
-    public ProcessIndexes getProcessIndexes();
+    public <R> R indexesWithReadLock(final ProcessIndexesCallback<R> indexesCallback);
 
     public void registerListener(QueueListener listener);
 

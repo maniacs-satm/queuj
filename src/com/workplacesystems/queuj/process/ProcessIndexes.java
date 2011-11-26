@@ -64,6 +64,16 @@ public final class ProcessIndexes {
         locked_processes.clear();
     }
 
+    private final Object mutex = SyncUtils.createMutex(this);
+
+    <T> T withReadLock(Callback<T> callback) {
+        return SyncUtils.synchronizeRead(mutex, callback);
+    }
+
+    private <T> T withWriteLock(Callback<T> callback) {
+        return SyncUtils.synchronizeWrite(mutex, callback);
+    }
+
     final boolean addProcessToIndex(ProcessWrapper process)
     {
         return updateIndexes(process, true);
@@ -164,12 +174,17 @@ public final class ProcessIndexes {
         })).booleanValue();
     }
 
-    void finalizeIndexes(boolean commit)
+    void finalizeIndexes(final boolean commit)
     {
-        finalizeIndex(not_run_processes, commit, "Not Run Map", false);
-        finalizeIndex(running_processes, commit, "Running Map", false);
-        finalizeIndex(failed_processes, commit, "Failed Map", false);
-        finalizeIndex(locked_processes, commit, "Waiting to Run Map", false);
+        withWriteLock(new Callback<Void>() {
+            @Override
+            protected void doAction() {
+                finalizeIndex(not_run_processes, commit, "Not Run Map", false);
+                finalizeIndex(running_processes, commit, "Running Map", false);
+                finalizeIndex(failed_processes, commit, "Failed Map", false);
+                finalizeIndex(locked_processes, commit, "Waiting to Run Map", false);
+            }
+        });
     }
 
     private int[] finalizeIndex(final Map index_map, final boolean commit, final String map_description, final boolean recursed)
