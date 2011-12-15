@@ -20,6 +20,8 @@ import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.QueueBuilder;
 import com.workplacesystems.queuj.QueueRestriction;
+import com.workplacesystems.queuj.process.ProcessIndexes;
+import com.workplacesystems.queuj.process.ProcessIndexesCallback;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.seam.SeamProcessBuilder;
 import com.workplacesystems.utilsj.collections.helpers.HasLessThan;
@@ -56,11 +58,16 @@ public class Initialiser {
     public static class TestQueueRestriction extends QueueRestriction {
 
         @Override
-        protected boolean canRun(Queue queue, Process process) {
-            HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(100);
-            hasLessThen = process.getContainingServer().getProcessIndexes().iterateRunningProcesses(queue, hasLessThen);
-            process.getContainingServer().getProcessIndexes().iterateWaitingToRunProcesses(queue, hasLessThen);
-            return hasLessThen.hasLess();
+        protected boolean canRun(final Queue queue, Process process) {
+            return process.getContainingServer().indexesWithReadLock(new ProcessIndexesCallback<Boolean>() {
+
+                public Boolean readIndexes(ProcessIndexes pi) {
+                    HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(100);
+                    hasLessThen = pi.iterateRunningProcesses(queue, hasLessThen);
+                    pi.iterateWaitingToRunProcesses(queue, hasLessThen);
+                    return hasLessThen.hasLess();
+                }
+            });
         }
     }
 }
