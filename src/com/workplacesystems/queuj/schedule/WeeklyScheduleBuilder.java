@@ -25,7 +25,6 @@ import com.workplacesystems.queuj.Schedule;
 public class WeeklyScheduleBuilder extends ScheduleBuilder
 {
     private int interval_weeks = 1;
-    private int first_day_of_week = -1;
     private int day = 1;
     private int hour = 0;
     private int minute = 0;
@@ -39,11 +38,6 @@ public class WeeklyScheduleBuilder extends ScheduleBuilder
     public void setIntervalWeeks(int interval_weeks)
     {
         this.interval_weeks = interval_weeks;
-    }
-
-    public void setFirstDayOfWeek(int first_day_of_week)
-    {
-        this.first_day_of_week = first_day_of_week;
     }
 
     public void setScheduledDay(int day)
@@ -64,6 +58,6 @@ public class WeeklyScheduleBuilder extends ScheduleBuilder
     @Override
     Schedule newSchedule()
     {
-        return new WeeklySchedule(interval_weeks, first_day_of_week, day, hour, minute);
+        return new WeeklySchedule(interval_weeks, day, hour, minute);
     }
 }
