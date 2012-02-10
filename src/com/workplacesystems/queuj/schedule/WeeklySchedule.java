@@ -31,14 +31,16 @@ public class WeeklySchedule extends Schedule
     private static final long serialVersionUID = WeeklySchedule.class.getName().hashCode() + 1;
 
     private final int interval_weeks;
+    private final int first_day_of_week;
     private final int scheduled_day;
     private final int scheduled_hour;
     private final int scheduled_minute;
 
     /** Creates a new instance of WeeklySchedule */
-    WeeklySchedule(int interval_weeks, int scheduled_day, int scheduled_hour, int scheduled_minute)
+    WeeklySchedule(int interval_weeks, int first_day_of_week, int scheduled_day, int scheduled_hour, int scheduled_minute)
     {
         this.interval_weeks = interval_weeks;
+        this.first_day_of_week = first_day_of_week;
         this.scheduled_day = scheduled_day;
         this.scheduled_hour = scheduled_hour;
         this.scheduled_minute = scheduled_minute;
@@ -47,6 +49,11 @@ public class WeeklySchedule extends Schedule
     public int getIntervalWeeks()
     {
         return interval_weeks;
+    }
+
+    public int getFirstDayOfWeek()
+    {
+        return first_day_of_week;
     }
 
     public int getScheduledDay()
@@ -68,6 +75,8 @@ public class WeeklySchedule extends Schedule
     protected GregorianCalendar getNextRunTime(GregorianCalendar schedule_start)
     {
         GregorianCalendar next_run = (GregorianCalendar)schedule_start.clone();
+        if (first_day_of_week > -1)
+            next_run.setFirstDayOfWeek(first_day_of_week);
         next_run.set(Calendar.DAY_OF_WEEK, scheduled_day);
         next_run.set(Calendar.HOUR_OF_DAY, scheduled_hour);
         next_run.set(Calendar.MINUTE, scheduled_minute);
@@ -84,6 +93,7 @@ public class WeeklySchedule extends Schedule
     protected String getSelfString()
     {
         return ", interval_weeks = " + String.valueOf(interval_weeks) +
+            ", first_day_of_week = " + String.valueOf(first_day_of_week) +
             ", scheduled_day = " + String.valueOf(scheduled_day) +
             ", scheduled_hour = " + String.valueOf(scheduled_hour) +
             ", scheduled_minute = " + String.valueOf(scheduled_minute);
