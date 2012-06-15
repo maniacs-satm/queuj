@@ -434,6 +434,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                 log.debug("ProcessWrapper.updateComplete called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.RUN_OK);
                 process.setRunCount(process.getRunCount() + 1);
+                process.setAttempt(0);
                 if (isPersistent) processHome.update();
                 _return(ProcessWrapper.this);
             }
