@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -377,7 +378,9 @@ public class ProcessScheduler extends BackgroundProcess
 
     private class UnParkBackgroundProcess extends BackgroundProcess
     {
-        private final TreeSet queued_processes = new TreeSet();
+        private final TreeSet<ProcessWrapper> queued_processes = new TreeSet<ProcessWrapper>();
+        private final HashMap<String,TreeSet<ProcessWrapper>> groupedByQueue =
+                new HashMap<String,TreeSet<ProcessWrapper>>();
 
         private boolean running = false;
 
@@ -388,10 +391,59 @@ public class ProcessScheduler extends BackgroundProcess
             super(pool_creator);
         }
 
+        private ProcessWrapper getHead(TreeSet<ProcessWrapper> processes) {
+            ProcessWrapper head = null;
+            Iterator<ProcessWrapper> i = processes.iterator();
+            if (i.hasNext())
+                head = i.next();
+            return head;
+        }
+
+        private synchronized void adjustQueuedProcesses(boolean add, ProcessWrapper process) {
+            if (process.getQueue().hasPredictableRestriction()) {
+                TreeSet<ProcessWrapper> processes = groupedByQueue.get(process.getQueue().toString());
+                if (processes == null) {
+                    processes = new TreeSet<ProcessWrapper>();
+                    groupedByQueue.put(process.getQueue().toString(), processes);
+                }
+
+                ProcessWrapper head = getHead(processes);
+
+                if (add) {
+                    processes.add(process);
+
+                    if (head == null)
+                        queued_processes.add(process);
+                    else if (head != process && head.compareTo(process) > 0) {
+                        queued_processes.remove(head);
+                        queued_processes.add(process);
+                    }
+                }
+                else {
+                    processes.remove(process);
+
+                    if (head == process) {
+                        queued_processes.remove(process);
+                        head = getHead(processes);
+                        if (head != null)
+                            queued_processes.add(head);
+                    }
+                }
+            }
+            else {
+                if (add)
+                    queued_processes.add(process);
+                else
+                    queued_processes.remove(process);
+            }
+        }
+
         private synchronized void queue(ProcessWrapper process)
         {
             log.debug("Unparking processes: " + process.runnerHashCode());
-            queued_processes.add(process);
+
+            adjustQueuedProcesses(true, process);
+
             if (!running)
             {
                 running = true;
@@ -402,10 +454,10 @@ public class ProcessScheduler extends BackgroundProcess
         private synchronized void unQueue(ProcessWrapper process)
         {
             log.debug("unQueue parking of process: " + process.runnerHashCode());
-            queued_processes.remove(process);
+            adjustQueuedProcesses(false, process);
         }
 
-        private synchronized void queue(Collection local_processes)
+        private synchronized void queue(Collection<ProcessWrapper> local_processes)
         {
             if (log.isDebugEnabled())
             {
@@ -414,7 +466,9 @@ public class ProcessScheduler extends BackgroundProcess
                     process_hashes += ((ProcessWrapper)i.next()).runnerHashCode() + ", ";
                 log.debug("Unparking processes: " + process_hashes);
             }
-            queued_processes.addAll(local_processes);
+            for (ProcessWrapper process : local_processes)
+                adjustQueuedProcesses(true, process);
+
             if (!running)
             {
                 running = true;
@@ -453,6 +507,7 @@ public class ProcessScheduler extends BackgroundProcess
             synchronized (run_mutex)
             {
                 ProcessWrapper process = null;
+                TreeSet<ProcessWrapper> processes = null;
                 synchronized (this)
                 {
                     Iterator i = queued_processes.iterator();
@@ -461,10 +516,23 @@ public class ProcessScheduler extends BackgroundProcess
                         process = (ProcessWrapper)i.next();
                         i.remove();
                     }
+
+                    if (process != null)
+                        processes = groupedByQueue.remove(process.getQueue().toString());
                 }
 
-                if (process != null)
-                    process.unPark(null);
+                if (processes == null) {
+                    if (process != null)
+                        process.unPark(null);
+                }
+                else {
+                    for (ProcessWrapper process0 : processes) {
+                        if (process0 != null) {
+                            if (!process0.unPark(null))
+                                return;
+                        }
+                    }
+                }
             }
         }
 

@@ -255,6 +255,13 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
         return null;
     }
 
+    public boolean hasPredictableRestriction() {
+        boolean isPredictable = restriction == null ? true : restriction.isPredictable();
+        if (isPredictable && parent_queue != null)
+            return parent_queue.hasPredictableRestriction();
+        return isPredictable;
+    }
+
     /**
      * Check with this Queue and the parent Queue whether the supplied Process can run.
      */

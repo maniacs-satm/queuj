@@ -35,6 +35,11 @@ public class JavaQueueRestriction extends QueueRestriction
     }
 
     @Override
+    protected boolean isPredictable() {
+        return true;
+    }
+
+    @Override
     protected boolean canRun(Queue queue, Process process)
     {
         return true; // No restriction by default

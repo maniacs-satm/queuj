@@ -204,6 +204,11 @@ public class QueujSampleView extends FrameView {
     public static class TestQueueRestriction extends QueueRestriction {
 
         @Override
+        protected boolean isPredictable() {
+            return true;
+        }
+
+        @Override
         protected boolean canRun(final Queue queue, Process process) {
             return process.getContainingServer().indexesWithReadLock(new ProcessIndexesCallback<Boolean>() {
 

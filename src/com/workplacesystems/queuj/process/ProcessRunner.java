@@ -77,20 +77,20 @@ class ProcessRunner extends BackgroundProcess {
         ((ProcessImplServer)process.getContainingServer()).getProcessScheduler().scheduleProcess(process, runTime);
     }
 
-    void unPark(Collection<ProcessRunner> next_runners) {
+    boolean unPark(Collection<ProcessRunner> next_runners) {
         if (used)
-            return;
+            return false;
 
         if (!parked) {
             new QueujException("Can't unPark a runner that is not parked?!?! ProcessId: "  + process.getProcessKey());
-            return;
+            return false;
         }
 
         if (interrupted) {
             // Get another thread to deal with this if next_runners != null
             if (next_runners != null) {
                 doNotify();
-                return;
+                return false;
             }
 
             log.debug("Runner interrupted in unPark(): " + hashCode());
@@ -119,6 +119,8 @@ class ProcessRunner extends BackgroundProcess {
                                 start();
                             else
                                 next_runners.add(this);
+
+                            return true;
                         }
                         else {
                             interrupted = false;
@@ -136,6 +138,7 @@ class ProcessRunner extends BackgroundProcess {
                 doFinally();
             }
         }
+        return false;
     }
 
     @Override

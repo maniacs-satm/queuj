@@ -43,6 +43,29 @@ public abstract class QueueRestriction implements Serializable
     }
 
     /**
+     * A predictable restriction is one that, given the same job queue state, will
+     * always return the same result from canRun. Returning true from isPredictable
+     * improves the scalability of the job queue. For jobs that have non-predictable
+     * restrictions scalability needs to be taken into consideration manually by
+     * limiting the number of these jobs that get added to the queue at one time.
+     * 
+     * A restriction is considered not predictable if the result from canRun would
+     * vary based on variables not considered part of the queue. For instance, if
+     * canRun is dependant on a parameter in the process passed into the canRun
+     * method or if canRun is dependant on the current availability of system
+     * resources.
+     * 
+     * For jobs of the same queue with a predictable restriction the scheduler
+     * will call canRun on the queue for each job until one returns false at which
+     * point it will not check anymore during that notify queue cycle. For jobs
+     * without a predictable restriction the scheduler will call canRun on every
+     * job for each notify cycle.
+     * 
+     * @return whether the restriction implemented by this class is predictable or not?
+     */
+    protected abstract boolean isPredictable();
+
+    /**
      * Can the supplied Process run for the supplied Queue.
      */
     protected abstract boolean canRun(Queue queue, Process process);

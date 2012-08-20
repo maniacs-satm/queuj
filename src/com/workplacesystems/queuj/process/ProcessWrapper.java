@@ -490,10 +490,11 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     void setupOutputFile() {} // To be implemented
 
-    void unPark(FilterableArrayList local_next_runners) {
+    boolean unPark(FilterableArrayList local_next_runners) {
         ProcessRunner _processRunner = processRunner;
         if (_processRunner != null)
-            _processRunner.unPark(local_next_runners);
+            return _processRunner.unPark(local_next_runners);
+        return false;
     }
 
     private void doTransaction(Callback callback) {
