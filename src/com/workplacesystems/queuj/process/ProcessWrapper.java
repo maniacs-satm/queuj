@@ -26,7 +26,6 @@ import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl.Status;
-import com.workplacesystems.queuj.process.seam.ProcessImplHome;
 import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.queuj.utils.User;
@@ -486,6 +485,10 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             return false;
 
         return restart0();
+    }
+
+    public void notifySelf() {
+        ((ProcessImplServer)getContainingServer()).notifyProcess(this);
     }
 
     void setupOutputFile() {} // To be implemented

@@ -23,6 +23,7 @@ import com.workplacesystems.queuj.schedule.MinutelyScheduleBuilder;
 import com.workplacesystems.queuj.schedule.MonthlyScheduleBuilder;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
 import com.workplacesystems.queuj.schedule.ScheduleSetter;
+import com.workplacesystems.queuj.schedule.VariableScheduleBuilder;
 import com.workplacesystems.queuj.schedule.WeeklyScheduleBuilder;
 import com.workplacesystems.queuj.schedule.YearlyScheduleBuilder;
 
@@ -52,4 +53,6 @@ public abstract class ScheduleFactory
     protected abstract MonthlyScheduleBuilder newMonthlyScheduleBuilder(ScheduleSetter schedule_setter);
 
     protected abstract YearlyScheduleBuilder newYearlyScheduleBuilder(ScheduleSetter schedule_setter);
+
+    protected abstract VariableScheduleBuilder newVariableScheduleBuilder(ScheduleSetter schedule_setter);
 }

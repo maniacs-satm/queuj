@@ -103,6 +103,10 @@ public final class Process implements Serializable {
         return getProcess().delete();
     }
 
+    public void notifySelf() {
+        getProcess().notifySelf();
+    }
+
     public String getProcessName() {
         return getProcess().getProcessName();
     }

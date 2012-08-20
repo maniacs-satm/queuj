@@ -85,4 +85,10 @@ public class ScheduleFactoryImpl extends ScheduleFactory
     {
         return new YearlyScheduleBuilder(schedule_setter);
     }
+
+    @Override
+    protected VariableScheduleBuilder newVariableScheduleBuilder(ScheduleSetter schedule_setter)
+    {
+        return new VariableScheduleBuilder(schedule_setter);
+    }
 }

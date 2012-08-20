@@ -120,6 +120,10 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return getProcessScheduler().notifyAllProcesses(this, null) ? Boolean.TRUE : Boolean.FALSE;
     }
 
+    void notifyProcess(ProcessWrapper process) {
+        getProcessScheduler().notifyProcess(process);
+    }
+
     public ProcessWrapper getNewProcess(QueueOwner queueOwner, boolean isPersistent) {
         return ProcessWrapper.getNewInstance(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), isPersistent);
     }
