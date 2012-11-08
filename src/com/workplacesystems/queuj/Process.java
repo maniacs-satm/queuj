@@ -51,6 +51,10 @@ public final class Process implements Serializable {
         return process;
     }
 
+    public String getQueueOwner() {
+        return queueOwner;
+    }
+
     public Integer getProcessKey() {
         return processKey;
     }

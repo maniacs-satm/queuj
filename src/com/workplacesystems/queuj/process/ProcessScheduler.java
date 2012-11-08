@@ -198,7 +198,7 @@ public class ProcessScheduler extends BackgroundProcess
         }
     }
 
-    boolean notifyAllProcesses(ProcessImplServer ps, final Collection next_runners)
+    boolean notifyAllProcesses(ProcessServer ps, final Collection next_runners)
     {
         if (next_runners != null)
         {

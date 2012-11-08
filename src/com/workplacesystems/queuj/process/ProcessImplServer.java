@@ -18,7 +18,6 @@ package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.ProcessMatcher;
-import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.QueueListener;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
@@ -72,12 +71,16 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         processes.setAutoCommit(false);
     }
 
+    public Object getMutex() {
+        return mutex;
+    }
+
     public void submitProcess(ProcessWrapper process) {
         processes.put(process.getProcessKey(), process);
         indexes.addProcessToIndex(process);
     }
 
-    ProcessScheduler getProcessScheduler() {
+    public ProcessScheduler getProcessScheduler() {
         return processScheduler;
     }
 
@@ -128,7 +131,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return ProcessWrapper.getNewInstance(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), isPersistent);
     }
 
-    void delete(ProcessWrapper process) {
+    public void delete(ProcessWrapper process) {
         try {
             processes.remove(process.getProcessKey());
             indexes.removeProcessFromIndex(process);
@@ -184,7 +187,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return processes.get(key);
     }
 
-    <T> T withReadLock(Callback<T> callback) {
+    public <T> T withReadLock(Callback<T> callback) {
         return SyncUtils.synchronizeRead(processes, callback);
     }
 
@@ -200,7 +203,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         queueListeners.remove(listener);
     }
 
-    boolean contains(ProcessWrapper process) {
+    public boolean contains(ProcessWrapper process) {
         return processes.containsValue(process);
     }
 
@@ -221,12 +224,12 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         });
     }
 
-    boolean addProcessToIndex(ProcessWrapper process)
+    public boolean addProcessToIndex(ProcessWrapper process)
     {
         return indexes.addProcessToIndex(process);
     }
 
-    boolean  removeProcessFromIndex(ProcessWrapper process)
+    public boolean removeProcessFromIndex(ProcessWrapper process)
     {
         return indexes.removeProcessFromIndex(process);
     }

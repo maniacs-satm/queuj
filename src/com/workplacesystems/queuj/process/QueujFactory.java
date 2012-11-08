@@ -16,10 +16,10 @@
 
 package com.workplacesystems.queuj.process;
 
-import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Version;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
+import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
 import org.apache.commons.logging.Log;
@@ -82,8 +82,8 @@ public class QueujFactory {
         return instance.getTransaction0();
     }
 
-    public static final ProcessPersistence getPersistence() {
-        return instance.getPersistence0();
+    public static final ProcessPersistence getPersistence(String queueOwner) {
+        return instance.getPersistence0(queueOwner);
     }
 
     public static final ProcessDAO getProcessDAO() {
@@ -92,6 +92,10 @@ public class QueujFactory {
 
     public static final <T> Callback<T> getAsyncCallback(Callback<T> callback) {
         return instance.getAsyncCallback0(callback);
+    }
+
+    static final ProcessEntity getNewProcessEntity(String queueOwner) {
+        return instance.getNewProcessEntity0(queueOwner);
     }
 
     protected void init() {}
@@ -125,7 +129,7 @@ public class QueujFactory {
         };
     }
 
-    protected ProcessPersistence getPersistence0() {
+    protected ProcessPersistence getPersistence0(String queueOwner) {
         return null;
     }
 
@@ -135,5 +139,9 @@ public class QueujFactory {
 
     public <T> Callback<T> getAsyncCallback0(Callback<T> callback) {
         return callback;
+    }
+
+    protected ProcessEntity getNewProcessEntity0(String queueOwner) {
+        return new ProcessImpl();
     }
 }

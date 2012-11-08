@@ -57,7 +57,7 @@ class ProcessRunner extends BackgroundProcess {
 
     public synchronized void doNotify() {
         if (parked)
-            ((ProcessImplServer)process.getContainingServer()).getProcessScheduler().notifyProcess(process);
+            process.getContainingServer().getProcessScheduler().notifyProcess(process);
         else
             notify();
     }
@@ -74,7 +74,7 @@ class ProcessRunner extends BackgroundProcess {
     private void park() {
         log.debug("Parking runner: " + hashCode());
         parked = true;
-        ((ProcessImplServer)process.getContainingServer()).getProcessScheduler().scheduleProcess(process, runTime);
+        process.getContainingServer().getProcessScheduler().scheduleProcess(process, runTime);
     }
 
     boolean unPark(Collection<ProcessRunner> next_runners) {
@@ -94,7 +94,7 @@ class ProcessRunner extends BackgroundProcess {
             }
 
             log.debug("Runner interrupted in unPark(): " + hashCode());
-            ((ProcessImplServer)process.getContainingServer()).getProcessScheduler().unScheduleProcess(process);
+            process.getContainingServer().getProcessScheduler().unScheduleProcess(process);
             doFinally();
         }
         else {
@@ -104,8 +104,8 @@ class ProcessRunner extends BackgroundProcess {
             }
 
             try {
-                ProcessImplServer ps = (ProcessImplServer)process.getContainingServer();
-                synchronized (ps.mutex) {
+                ProcessServer ps = process.getContainingServer();
+                synchronized (ps.getMutex()) {
                     log.debug("Checking unpark for runner: " + hashCode());
                     boolean can_unpark = canRunProcess();
                     boolean pending_delete = process.isDeleted();
@@ -234,7 +234,7 @@ class ProcessRunner extends BackgroundProcess {
         synchronized (this)
         {
             started = false;
-            ((ProcessImplServer)process.getContainingServer()).notifyQueue();
+            process.getContainingServer().notifyQueue();
         }
     }
 

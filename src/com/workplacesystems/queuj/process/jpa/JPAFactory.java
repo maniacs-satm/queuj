@@ -156,7 +156,7 @@ public class JPAFactory extends QueujFactory {
         };
     }
 
-    protected ProcessPersistence getPersistence0() {
+    protected ProcessPersistence getPersistence0(final String queueOwner) {
         return new ProcessPersistence<ProcessImpl>() {
 
             private ProcessImpl instance = null;
@@ -167,7 +167,7 @@ public class JPAFactory extends QueujFactory {
 
             public ProcessImpl getInstance() {
                 if (instance == null)
-                    instance = new ProcessImpl();
+                    instance = (ProcessImpl)getNewProcessEntity0(queueOwner);
                 return instance;
             }
 

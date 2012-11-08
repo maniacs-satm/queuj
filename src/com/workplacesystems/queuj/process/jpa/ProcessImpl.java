@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj.process.jpa;
 
+import com.workplacesystems.queuj.process.ProcessEntity;
 import com.workplacesystems.queuj.process.ProcessParameters;
 import com.workplacesystems.queuj.Access;
 import com.workplacesystems.queuj.Occurrence;
@@ -46,32 +47,7 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="process", uniqueConstraints={@UniqueConstraint(columnNames={"queue_owner_id","process_id"})})
-public class ProcessImpl implements Serializable {
-    public enum Status {
-        RUN_OK(0, "qj.enum.ProcessImplStatus.RunOK"),
-        NOT_RUN(1, "qj.enum.ProcessImplStatus.NotRun"),
-        LOCKED(2, "qj.enum.ProcessImplStatus.Locked"),
-        RUNNING(3, "qj.enum.ProcessImplStatus.Running"),
-        RESTARTED(4, "qj.enum.ProcessImplStatus.Restarted"),
-        RUN_ERROR(5, "qj.enum.ProcessImplStatus.RunError"),
-        DELETED(6, "qj.enum.ProcessImplStatus.Deleted");
-
-        private final int status;
-        private final String description;
-
-        Status(int status, String description) {
-            this.status = status;
-            this.description = description;
-        }
-
-        public int getValue() {
-            return status;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    };
+public class ProcessImpl implements ProcessEntity, Serializable {
 
     private Integer processId;
     private Integer OPTLOCK;

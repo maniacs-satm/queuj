@@ -50,7 +50,7 @@ public class SeamFactory extends QueujFactory {
         return (QueujTransaction)Component.getInstance(SeamTransaction.class, true);
     }
 
-    protected ProcessPersistence getPersistence0() {
+    protected ProcessPersistence getPersistence0(String queueOwner) {
         return (ProcessPersistence)Component.getInstance(ProcessImplHome.class, true);
     }
 

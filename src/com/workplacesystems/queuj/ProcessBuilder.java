@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj;
 
+import com.workplacesystems.queuj.process.ProcessServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.utilsj.Callback;
 import java.util.Locale;

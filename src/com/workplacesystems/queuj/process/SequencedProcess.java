@@ -26,5 +26,8 @@ import com.workplacesystems.queuj.Process;
  */
 public interface SequencedProcess extends Serializable
 {
+    /** Check if this process needs to be provided with a transaction - determines which of the actions will be invoked */
+    public boolean needsTransaction();
+    
     public void action(Process parent_process, String userId, boolean previous_failed);
 }

@@ -20,12 +20,11 @@ import com.workplacesystems.queuj.Access;
 import com.workplacesystems.queuj.Occurrence;
 import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Process;
-import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
+import com.workplacesystems.queuj.process.ProcessEntity.Status;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
-import com.workplacesystems.queuj.process.jpa.ProcessImpl.Status;
 import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.queuj.utils.User;
@@ -51,7 +50,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     private String queueOwner;
 
-    private ProcessImpl process;
+    private ProcessEntity process;
 
     private boolean isPersistent;
 
@@ -59,13 +58,13 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     private static int nextProcessId = Integer.MAX_VALUE;
 
-    private ProcessWrapper(String queueOwner, ProcessImpl process, boolean isPersistent) {
+    private ProcessWrapper(String queueOwner, ProcessEntity process, boolean isPersistent) {
         this.queueOwner = queueOwner;
         this.process = process;
         this.isPersistent = isPersistent;
     }
 
-    static ProcessWrapper getNewInstance(String queueOwner, ProcessImpl process, boolean isPersistent) {
+    public static ProcessWrapper getNewInstance(String queueOwner, ProcessEntity process, boolean isPersistent) {
         ProcessWrapper wrapper = new ProcessWrapper(queueOwner, process, isPersistent);
         return wrapper;
     }
@@ -73,13 +72,13 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent) {
         ProcessWrapper processWrapper;
         if (isPersistent) {
-            ProcessPersistence<ProcessImpl> processHome = QueujFactory.getPersistence();
+            ProcessPersistence<ProcessEntity> processHome = QueujFactory.getPersistence(queueOwner);
             processHome.clearInstance();
-            ProcessImpl process = processHome.getInstance();
+            ProcessEntity process = processHome.getInstance();
             processWrapper = getNewInstance(queueOwner, process, true);
         }
         else {
-            ProcessImpl process = new ProcessImpl();
+            ProcessEntity process = QueujFactory.getNewProcessEntity(queueOwner);
             process.setProcessId(getNextProcessId());
             processWrapper = getNewInstance(queueOwner, process, false);
         }
@@ -93,7 +92,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     private ProcessPersistence<ProcessImpl> getProcessPersistence() {
         if (!isPersistent)
             return null;
-        ProcessPersistence<ProcessImpl> processHome = QueujFactory.getPersistence();
+        ProcessPersistence<ProcessImpl> processHome = QueujFactory.getPersistence(queueOwner);
         processHome.clearInstance();
         processHome.setId(process.getProcessId());
         this.process = processHome.getInstance();
@@ -105,7 +104,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     }
 
     public boolean isAddedToServer() {
-        return ((ProcessImplServer)getContainingServer()).contains(this);
+        return getContainingServer().contains(this);
     }
 
     public boolean isPersistent() { return isPersistent; }
@@ -334,13 +333,13 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
             @Override
             protected void doAction() {
-                ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.updateRunError called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.RUN_ERROR);
                 process.setAttempt(process.getAttempt() + 1);
                 if (isPersistent) processHome.update();
-                ((ProcessImplServer)getContainingServer()).addProcessToIndex(ProcessWrapper.this);
+                getContainingServer().addProcessToIndex(ProcessWrapper.this);
                 _return(ProcessWrapper.this);
             }
         });
@@ -353,7 +352,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
                 @Override
                 protected void doAction() {
-                    ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                    getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
 
                     ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                     log.debug("ProcessWrapper.updateRestart called for " + process.getProcessId() + "(" + process.getVersion() + ")");
@@ -373,7 +372,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
             @Override
             protected void doAction() {
-                ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.updateRunning called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.RUNNING);
@@ -383,7 +382,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                 process.setScheduledTimestamp(runTime.getTime());
                 if (isPersistent) processHome.update();
 
-                ((ProcessImplServer)getContainingServer()).addProcessToIndex(ProcessWrapper.this);
+                getContainingServer().addProcessToIndex(ProcessWrapper.this);
                 _return(ProcessWrapper.this);
             }
         });
@@ -394,13 +393,13 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
             @Override
             protected void doAction() {
-                ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.updateNotRun called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.NOT_RUN);
                 process.setResultCode(0);
                 if (isPersistent) processHome.update();
-                ((ProcessImplServer)getContainingServer()).addProcessToIndex(ProcessWrapper.this);
+                getContainingServer().addProcessToIndex(ProcessWrapper.this);
                 _return(ProcessWrapper.this);
             }
         });
@@ -411,13 +410,13 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
             @Override
             protected void doAction() {
-                ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.updateLocked called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.LOCKED);
                 process.setResultCode(0);
                 if (isPersistent) processHome.update();
-                ((ProcessImplServer)getContainingServer()).addProcessToIndex(ProcessWrapper.this);
+                getContainingServer().addProcessToIndex(ProcessWrapper.this);
                 _return(ProcessWrapper.this);
             }
         });
@@ -428,7 +427,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
             @Override
             protected void doAction() {
-                ((ProcessImplServer)getContainingServer()).removeProcessFromIndex(ProcessWrapper.this);
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.updateComplete called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 process.setStatus(Status.RUN_OK);
@@ -461,7 +460,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                 ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                 log.debug("ProcessWrapper.delete called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 if (isPersistent) processHome.remove();
-                ((ProcessImplServer)getContainingServer()).delete(ProcessWrapper.this);
+                getContainingServer().delete(ProcessWrapper.this);
                 deleted = true;
                 _return(ProcessWrapper.this);
             }
@@ -625,7 +624,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             {
                 try
                 {
-                    doTransaction(new Callback() {
+                    Callback seq_callback = new Callback() {
 
                         @Override
                         protected void doAction() {
@@ -636,7 +635,12 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                             if (isPersistent) processHome.update();
                             _return(ProcessWrapper.this);
                         }
-                    });
+                    };
+
+                    if (post_process.needsTransaction())
+                        doTransaction(seq_callback);
+                    else
+                        seq_callback.action();
                 }
                 catch (Exception e)
                 {
@@ -660,8 +664,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
                 @Override
                 protected void doAction() {
-                    ProcessImplServer ps = ((ProcessImplServer)getContainingServer());
-                    ps.removeProcessFromIndex(ProcessWrapper.this);
+                    getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
 
                     ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
                     process.setResultCode(run_status.result_code.intValue());
@@ -672,7 +675,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                         process.setStatus(Status.RUN_ERROR);
                     }
 
-                    ps.addProcessToIndex(ProcessWrapper.this);
+                    getContainingServer().addProcessToIndex(ProcessWrapper.this);
 
                     if (isPersistent) processHome.update();
                     _return(ProcessWrapper.this);
