@@ -167,7 +167,7 @@ public class JPAFactory extends QueujFactory {
 
             public ProcessImpl getInstance() {
                 if (instance == null)
-                    instance = (ProcessImpl)getNewProcessEntity0(queueOwner);
+                    instance = (ProcessImpl)getNewProcessEntity0(queueOwner, true);
                 return instance;
             }
 

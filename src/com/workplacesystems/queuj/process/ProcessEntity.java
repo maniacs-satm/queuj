@@ -22,7 +22,9 @@ import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -67,6 +69,8 @@ public interface ProcessEntity {
 
     public String getUUID();
     public void setUUID(String uuid);
+
+    public void setImplementationOptions(HashMap<String, Object> implementation_options, ProcessWrapper process_wrapper);
 
     public String getProcessName();
     public void setProcessName(String processName);

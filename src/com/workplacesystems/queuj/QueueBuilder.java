@@ -17,6 +17,8 @@
 package com.workplacesystems.queuj;
 
 import com.workplacesystems.queuj.process.BatchProcessServer;
+import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * An instance of QueueBuilder is used build a new Queue and provide methods
@@ -61,8 +63,7 @@ public class QueueBuilder<B extends ProcessBuilder>
     /** The default Output for Processes. */
     private Output default_output;
 
-    /** The deallocate partition delay for Processes. */
-    private int deallocate_partition_delay;
+    private HashMap<String,Serializable> implementation_options = new HashMap<String, Serializable>();
 
     /**
      * Creates a new instance of QueueBuilder with the supplied Queue as the parent
@@ -138,11 +139,11 @@ public class QueueBuilder<B extends ProcessBuilder>
     }
 
     /**
-     * Set the deallocate partition delay.
+     * Set options to be used directly by the queuj implementation
      */
-    public void setDeallocatePartitionDelay(int deallocate_partition_delay)
+    public void setImplementationOption(String option_key, Serializable option_value)
     {
-        this.deallocate_partition_delay = deallocate_partition_delay;
+        implementation_options.put(option_key, option_value);
     }
 
     /**
@@ -151,6 +152,6 @@ public class QueueBuilder<B extends ProcessBuilder>
     public Queue<B> newQueue()
     {
         return new Queue<B>(parent_queue, queue_restriction, index, process_builder_class, process_server_class,
-            default_occurence, default_visibility, default_access, default_resilience, default_output, deallocate_partition_delay);
+            default_occurence, default_visibility, default_access, default_resilience, default_output, implementation_options);
     }
 }

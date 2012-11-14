@@ -198,7 +198,7 @@ public class ProcessScheduler extends BackgroundProcess
         }
     }
 
-    boolean notifyAllProcesses(ProcessServer ps, final Collection next_runners)
+    public boolean notifyAllProcesses(ProcessServer ps, final Collection next_runners)
     {
         if (next_runners != null)
         {
@@ -276,7 +276,7 @@ public class ProcessScheduler extends BackgroundProcess
         unParkProcess(process);
     }
 
-    synchronized void stopRunning()
+    public synchronized void stopRunning()
     {
         log.debug("Stopping process_scheduler: " + hashCode());
         do_notify = false;

@@ -110,8 +110,12 @@ public class SeamTransaction implements QueujTransaction {
         for (ProcessServer ps : processServers)
             ((ProcessImplServer)ps).commit();
 
-        for (ProcessWrapper process : context.startProcesses)
-            process.start();
+        for (ProcessWrapper process : context.startProcesses) {
+            if (process.rescheduleRequired())
+                process.interruptRunner();
+            else
+                process.start();
+        }
 
         EntityManager em = (EntityManager)Component.getInstance("entityManager");
         em.clear();

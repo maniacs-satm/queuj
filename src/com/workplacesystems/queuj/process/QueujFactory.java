@@ -22,6 +22,9 @@ import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
+import java.io.Serializable;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -70,6 +73,10 @@ public class QueujFactory {
 
     protected QueujFactory() {}
 
+    public static final void setDefaultImplOptions(HashMap<String, Object> implementation_options) {
+        instance.setDefaultImplOptions0(implementation_options);
+    }
+
     public static final ProcessServer getProcessServer(QueueOwner queueOwner) {
         return instance.getProcessServer0(queueOwner == null ? null : queueOwner.getQueueOwnerKey());
     }
@@ -94,11 +101,17 @@ public class QueujFactory {
         return instance.getAsyncCallback0(callback);
     }
 
-    static final ProcessEntity getNewProcessEntity(String queueOwner) {
-        return instance.getNewProcessEntity0(queueOwner);
+    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent) {
+        return instance.getNewProcessEntity0(queueOwner, isPersistent);
+    }
+
+    static final ProcessRunner getProcessRunner(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed) {
+        return instance.getProcessRunner0(process, runTime, isFailed);
     }
 
     protected void init() {}
+
+    protected void setDefaultImplOptions0(HashMap<String, Object> implementation_options) {}
 
     protected ProcessServer getProcessServer0(String queueOwner) {
         return ProcessImplServer.newInstance(queueOwner);
@@ -120,8 +133,12 @@ public class QueujFactory {
                 if (result instanceof ProcessWrapper) {
                     ProcessWrapper process = (ProcessWrapper)result;
                     ((ProcessImplServer)process.getContainingServer()).commit();
-                    if (doStart)
-                        process.start();
+                    if (doStart) {
+                        if (process.rescheduleRequired())
+                            process.interruptRunner();
+                        else
+                            process.start();
+                    }
                 }
 
                 return result;
@@ -141,7 +158,11 @@ public class QueujFactory {
         return callback;
     }
 
-    protected ProcessEntity getNewProcessEntity0(String queueOwner) {
+    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent) {
         return new ProcessImpl();
+    }
+
+    protected ProcessRunner getProcessRunner0(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed) {
+        return new ProcessRunnerImpl(process, runTime, isFailed);
     }
 }

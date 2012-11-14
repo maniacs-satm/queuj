@@ -42,7 +42,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
 
     private final static ProcessImplServer instance = new ProcessImplServer(null);
 
-    final ProcessIndexes indexes = new ProcessIndexes();
+    final ProcessIndexesImpl indexes = new ProcessIndexesImpl();
 
     final Object mutex = new Object();
 

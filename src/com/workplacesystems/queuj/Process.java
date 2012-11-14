@@ -29,7 +29,7 @@ import java.util.GregorianCalendar;
  *
  * @author dave
  */
-public final class Process implements Serializable {
+public final class Process implements Serializable, Comparable {
 
     private String queueOwner;
 
@@ -69,6 +69,10 @@ public final class Process implements Serializable {
 
     public Queue getQueue() {
         return getProcess().getQueue();
+    }
+
+    public String getUserId() {
+        return getProcess().getUserId();
     }
 
     public ProcessServer getContainingServer() {
@@ -125,6 +129,15 @@ public final class Process implements Serializable {
 
     public String getStatusImg() {
         return getProcess().getStatusImg();
+    }
+
+    public int compareTo(Object o) {
+        if (o instanceof Process)
+            return getProcess().compareTo(((Process)o).getProcess());
+        else if (o instanceof ProcessWrapper)
+            return getProcess().compareTo((ProcessWrapper)o);
+
+        throw new IllegalArgumentException("Parameter for compareTo must be Process or ProcessWrapper");
     }
 
     @Override

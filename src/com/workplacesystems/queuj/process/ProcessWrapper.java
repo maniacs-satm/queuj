@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
 import org.apache.commons.logging.Log;
@@ -58,6 +59,8 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     private static int nextProcessId = Integer.MAX_VALUE;
 
+    private boolean rescheduleRequired;
+
     private ProcessWrapper(String queueOwner, ProcessEntity process, boolean isPersistent) {
         this.queueOwner = queueOwner;
         this.process = process;
@@ -78,7 +81,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             processWrapper = getNewInstance(queueOwner, process, true);
         }
         else {
-            ProcessEntity process = QueujFactory.getNewProcessEntity(queueOwner);
+            ProcessEntity process = QueujFactory.getNewProcessEntity(queueOwner, false);
             process.setProcessId(getNextProcessId());
             processWrapper = getNewInstance(queueOwner, process, false);
         }
@@ -112,7 +115,8 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     public void setDetails(String process_name, Queue queue, String process_description, User user,
             Occurrence occurrence, Visibility visibility, Access access, Resilience resilience, Output output,
             FilterableArrayList<? extends SequencedProcess> pre_processes, FilterableArrayList<? extends SequencedProcess> post_processes,
-            boolean keep_completed, Locale locale) {
+            boolean keep_completed, Locale locale, HashMap<String,Object> implementation_options) {
+
         ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
         process.setProcessName(process_name);
         if (queueOwner != null)
@@ -122,14 +126,14 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         process.setDescription(process_description);
         if (user != null)
             process.setUserId(user.getUserId());
-        process.setOccurrence(occurrence);
+        updateOccurrence(occurrence);
+        rescheduleRequired = false;
         process.setVisibility(visibility);
         process.setAccess(access);
         process.setResilience(resilience);
         process.setOutput(output);
         process.setKeepCompleted(keep_completed);
         process.setLocale(locale);
-        process.setStatus(Status.NOT_RUN);
 
         process.setCreationTimestamp(new Timestamp((new Date()).getTime()));
 
@@ -137,6 +141,8 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         parameters.setValue(ProcessParameters.POST_PROCESSES, post_processes);
         parameters.setValue(ProcessParameters.PRE_PROCESSES, pre_processes);
         process.setParameters(parameters);
+
+        process.setImplementationOptions(implementation_options, this);
 
         if (isPersistent) processHome.persist();
     }
@@ -158,6 +164,14 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     public Queue getQueue() {
         return process.getQueue();
+    }
+
+    public String getUserId() {
+        return process.getUserId();
+    }
+
+    public ProcessEntity getProcessEntity() {
+        return process;
     }
 
     public GregorianCalendar getNextRunTime() {
@@ -206,6 +220,12 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             return false;
 
         return true;
+    }
+
+    public boolean rescheduleRequired() {
+        synchronized (mutex) {
+            return ((isSleeping() && rescheduleRequired) || (isNotRun() && processRunner != null && processRunner.isSleeping() && isDeleted()));
+        }
     }
 
     boolean isDeleted() {
@@ -321,6 +341,22 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     }
 
     //-------------------------------------------- Update job details/status --------------------------------------------
+
+    void updateOccurrence(final Occurrence occurrence) {
+        doTransaction(new Callback() {
+
+            @Override
+            protected void doAction() {
+                process.setOccurrence(occurrence);
+                process.setRunCount(0);
+                process.setAttempt(0);
+                rescheduleRequired = true;
+                process.setScheduledTimestamp((new GregorianCalendar()).getTime());
+                process.setStatus(Status.NOT_RUN);
+                process.setResultCode(0);
+            }
+        });
+    }
 
     void updateRunErrorAndRestart() {
         updateRunError();
@@ -492,10 +528,46 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
     void setupOutputFile() {} // To be implemented
 
+    boolean isSleeping() {
+        synchronized (mutex)
+        {
+            return isNotRun() && processRunner != null && processRunner.isSleeping() && !isDeleted();
+        }
+    }
+
+    void notifyRunner()
+    {
+        synchronized (mutex)
+        {
+            if (isSleeping())
+            {
+                processRunner.doNotify();
+            }
+        }
+    }
+
+    public void interruptRunner()
+    {
+        rescheduleRequired = false;
+        synchronized (mutex)
+        {
+            if ((isNotRun() && processRunner != null && processRunner.isSleeping()))
+            {
+                processRunner.doInterrupt();
+            }
+        }
+    }
+
     boolean unPark(FilterableArrayList local_next_runners) {
         ProcessRunner _processRunner = processRunner;
-        if (_processRunner != null)
-            return _processRunner.unPark(local_next_runners);
+        if (_processRunner != null) {
+            if (!(_processRunner instanceof ProcessRunnerImpl))
+            {
+                new QueujException("Process runner is not instance of ProcessRunnerImpl. key=" + getProcessKey());
+                return false;
+            }
+            return ((ProcessRunnerImpl)_processRunner).unPark(local_next_runners);
+        }
         return false;
     }
 
@@ -745,7 +817,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             if (processRunner != null)
                 return false;
 
-            processRunner = new ProcessRunner(this, runTime, isFailed);
+            processRunner = QueujFactory.getProcessRunner(this, runTime, isFailed);
             processRunner.doStart();
             return true;
         }

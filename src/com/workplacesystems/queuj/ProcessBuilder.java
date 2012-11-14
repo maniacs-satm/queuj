@@ -26,6 +26,8 @@ import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.utils.User;
 import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * ProcessBuilder is provided by a Queue to allow for the easy creation
@@ -101,7 +103,9 @@ public class ProcessBuilder
     private String parent_key = null;
     
     protected boolean trace = false;
-    
+
+    private HashMap<String,Object> implementation_options = new HashMap<String, Object>();
+
     /** The page name. */
     private String source_name;
 
@@ -131,6 +135,8 @@ public class ProcessBuilder
         setProcessAccess(queue.getDefaultAccess());
         setProcessResilience(queue.getDefaultResilience());
         setProcessOutput(queue.getDefaultOutput());
+        QueujFactory.setDefaultImplOptions(implementation_options);
+        implementation_options.putAll(queue.getImplementationOptions());
     }
 
     /**
@@ -310,6 +316,14 @@ public class ProcessBuilder
     }
 
     /**
+     * Set options to be used directly by the queuj implementation
+     */
+    public void setImplementationOption(String option_key, Serializable option_value)
+    {
+        implementation_options.put(option_key, option_value);
+    }
+
+    /**
      * Creates the Process using the parameters that have been set.
      */
     public Process newProcess()
@@ -322,7 +336,8 @@ public class ProcessBuilder
                 ProcessWrapper process = ps.getNewProcess(partition, is_persistent);
                 process.setDetails(process_name, queue, process_description, user,
                     occurrence, visibility, access, resilience, output,
-                    pre_processes, post_processes, keep_completed, locale);
+                    pre_processes, post_processes, keep_completed, locale,
+                    implementation_options);
 
                 if (report_type != null)
                     process.setReportType(report_type);

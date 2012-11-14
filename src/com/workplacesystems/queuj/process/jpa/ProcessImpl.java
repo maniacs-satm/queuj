@@ -24,8 +24,10 @@ import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
+import com.workplacesystems.queuj.process.ProcessWrapper;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -184,6 +186,9 @@ public class ProcessImpl implements ProcessEntity, Serializable {
     @Column(name = "keep_completed")
     public boolean isKeepCompleted() { return keepCompleted; }
     public void setKeepCompleted(boolean keepCompleted) { this.keepCompleted = keepCompleted; }
+
+    // Implementation options not currently required for JPA and Seam implementations
+    public void setImplementationOptions(HashMap<String, Object> implementation_options, ProcessWrapper process_wrapper) {}
 
     @Override
     public boolean equals(Object obj) {

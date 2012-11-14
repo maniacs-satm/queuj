@@ -36,6 +36,11 @@ public class JavaProcessRunner implements Serializable
     {
     }
 
+    protected void setDetails(JavaProcessRunner java_process_runner)
+    {
+        this.java_process_session = java_process_runner.java_process_session;
+    }
+
     // must be called with an anonymous doRun so as to implement the process...
     public void setDetails(JavaProcessSession java_process_session)
     {

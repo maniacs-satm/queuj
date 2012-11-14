@@ -21,12 +21,15 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.workplacesystems.queuj.process.BatchProcessServer;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * A Queue object controls how Processes run and are created. A Queue is not persistent except
@@ -78,14 +81,14 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
     /** The default Output to use for Processes owned by this Queue. */
     private final Output default_output;
 
-    private final int deallocate_partition_delay;
+    private final Map<String,Serializable> implementation_options;
 
     private transient String queue_string = null;
 
     /** Creates a new instance of QueueBuilder */
     Queue(Queue parent_queue, QueueRestriction restriction, Index index, Class<B> process_builder_class,
         Class<? extends BatchProcessServer> process_server_class, Occurrence default_occurence, Visibility default_visibility,
-        Access default_access, Resilience default_resilience, Output default_output, int deallocate_partition_delay)
+        Access default_access, Resilience default_resilience, Output default_output, HashMap<String,Serializable> implementation_options)
     {
         this.parent_queue = parent_queue;
         this.restriction = restriction;
@@ -97,7 +100,11 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
         this.default_access = default_access;
         this.default_resilience = default_resilience;
         this.default_output = default_output;
-        this.deallocate_partition_delay = deallocate_partition_delay;
+        HashMap<String,Serializable> implementation_options0 = new HashMap<String, Serializable>();
+        if (parent_queue != null)
+            implementation_options0.putAll(parent_queue.getImplementationOptions());
+        implementation_options0.putAll(implementation_options);
+        this.implementation_options = Collections.unmodifiableMap(implementation_options0);
 
         setId(this);
 
@@ -255,6 +262,11 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
         return null;
     }
 
+    public Map<String,Serializable> getImplementationOptions()
+    {
+        return implementation_options;
+    }
+
     public boolean hasPredictableRestriction() {
         boolean isPredictable = restriction == null ? true : restriction.isPredictable();
         if (isPredictable && parent_queue != null)
@@ -283,11 +295,6 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
         if (index == null)
             return null;
         return index.getKey(process);
-    }
-
-    public int getPartitionDeallocateDelay()
-    {
-        return deallocate_partition_delay;
     }
 
     private final static String new_line = System.getProperty("line.separator");
@@ -339,8 +346,8 @@ public final class Queue<B extends ProcessBuilder> implements Serializable
             queue_string += "  restriction: " + restriction.toString() + new_line;
         if (index != null)
             queue_string += "  index: " + index.getClass().getName() + new_line;
-        if (deallocate_partition_delay != 0)
-            queue_string += "  deallocate partition delay: " + deallocate_partition_delay + new_line;
+        if (!implementation_options.isEmpty())
+            queue_string += "  implementation options: " + implementation_options.toString() + new_line;
         if (process_builder_class != null)
             queue_string += "  process builder: " + process_builder_class.getName() + new_line;
         if (process_server_class != null)
