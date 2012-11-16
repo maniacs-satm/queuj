@@ -25,8 +25,6 @@ import com.workplacesystems.utilsj.Callback;
  */
 public interface ProcessServer extends com.workplacesystems.queuj.ProcessServer {
     
-    public ProcessWrapper getNewProcess(QueueOwner queueOwner, boolean is_persistent);
-
     public void submitProcess(ProcessWrapper process);
 
     boolean contains(ProcessWrapper process);

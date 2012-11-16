@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
-import com.workplacesystems.queuj.utils.User;
+import java.util.Map;
 
 /**
  *
@@ -28,7 +28,7 @@ import com.workplacesystems.queuj.utils.User;
  */
 public interface ProcessOutputable
 {
-    void setDetails(User user, String source_name, String output_name, String report_type);
+    void setDetails(String user_id, String source_name, String output_name, String report_title, String report_type, Map<String,Object> options);
 
     String getOutputName();
 

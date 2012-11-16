@@ -111,7 +111,7 @@ public class SeamTransaction implements QueujTransaction {
             ((ProcessImplServer)ps).commit();
 
         for (ProcessWrapper process : context.startProcesses) {
-            if (process.rescheduleRequired())
+            if (process.rescheduleRequired(false))
                 process.interruptRunner();
             else
                 process.start();

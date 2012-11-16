@@ -21,6 +21,7 @@ import com.workplacesystems.queuj.Occurrence;
 import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.Queue;
+import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
 import com.workplacesystems.queuj.process.ProcessEntity.Status;
@@ -72,7 +73,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return wrapper;
     }
 
-    static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent) {
+    public static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent) {
         ProcessWrapper processWrapper;
         if (isPersistent) {
             ProcessPersistence<ProcessEntity> processHome = QueujFactory.getPersistence(queueOwner);
@@ -132,6 +133,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         process.setAccess(access);
         process.setResilience(resilience);
         process.setOutput(output);
+        process.setAssociatedReport(output.producesOutput());
         process.setKeepCompleted(keep_completed);
         process.setLocale(locale);
 
@@ -147,10 +149,24 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         if (isPersistent) processHome.persist();
     }
 
+    private final static String REPORT_TYPE = "report_type";
+
     public void setReportType(String report_type) {
+        setParameter(REPORT_TYPE, report_type);
     }
 
+    public String getReportType() {
+        return (String)getParameter(REPORT_TYPE);
+    }
+    
+    private final static String SOURCE_NAME = "page_name"; // page_name for legacy
+
     public void setSourceName(String source_name) {
+        setParameter(SOURCE_NAME, source_name);
+    }
+    
+    public String getSourceName() {
+        return (String)getParameter(SOURCE_NAME);
     }
 
     public Serializable setParameter(String parameterName, Serializable parameterValue) {
@@ -170,6 +186,10 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return process.getUserId();
     }
 
+    public Locale getLocale() {
+        return process.getLocale();
+    }
+
     public ProcessEntity getProcessEntity() {
         return process;
     }
@@ -186,25 +206,34 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return process.getStatus().equals(Status.NOT_RUN);
     }
 
-    boolean isRunning() {
+    public boolean isRunning() {
         return process.getStatus().equals(Status.RUNNING);
     }
 
-    boolean isWaitingToRun() {
+    public boolean isWaitingToRun() {
         return process.getStatus().equals(Status.LOCKED);
     }
 
-    private boolean isComplete() {
+    public boolean isComplete() {
         return process.getStatus().equals(Status.RUN_OK);
     }
 
-    boolean isRunError() {
+    public boolean isRunError() {
         return process.getStatus().equals(Status.RUN_ERROR);
+    }
+
+    public boolean isRestarted() {
+        return process.getStatus().equals(Status.RESTARTED);
     }
 
     public boolean isFailed() {
         return process.getResultCode() > 0 || isRunError() ||
             (((isRunning() || isWaitingToRun()) && processRunner == null));
+    }
+
+    public boolean isVisible(User user, QueueOwner active_partition)
+    {
+        return process.getVisibility().isVisible(new Process(this), user, active_partition);
     }
 
     public boolean isDueImminently(GregorianCalendar dueTime)
@@ -222,9 +251,9 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return true;
     }
 
-    public boolean rescheduleRequired() {
+    public boolean rescheduleRequired(boolean otherStatus) {
         synchronized (mutex) {
-            return ((isSleeping() && rescheduleRequired) || (isNotRun() && processRunner != null && processRunner.isSleeping() && isDeleted()));
+            return ((isSleeping() && rescheduleRequired) || (isNotRun() && processRunner != null && processRunner.isSleeping() && (isDeleted() || otherStatus)));
         }
     }
 
@@ -333,10 +362,16 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     }
 
     public boolean canDelete(User user) {
+        if (isRunning())
+            return false;
+
         return process.getAccess().canDelete(new Process(this), user, queueOwner);
     }
 
     public boolean canRestart(User user) {
+        if (!isFailed())
+            return false;
+
         return process.getAccess().canRestart(new Process(this), user, queueOwner);
     }
 
@@ -364,7 +399,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             restart0();
     }
 
-    void updateRunError() {
+    public void updateRunError() {
         doTransaction(new Callback() {
 
             @Override
@@ -416,6 +451,25 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
 
                 process.setStartedTimestamp(new Date());
                 process.setScheduledTimestamp(runTime.getTime());
+                if (isPersistent) processHome.update();
+
+                getContainingServer().addProcessToIndex(ProcessWrapper.this);
+                _return(ProcessWrapper.this);
+            }
+        });
+    }
+
+    public void updateRunning() {
+        doTransaction(new Callback() {
+
+            @Override
+            protected void doAction() {
+                getContainingServer().removeProcessFromIndex(ProcessWrapper.this);
+                ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
+                log.debug("ProcessWrapper.updateRunning called for " + process.getProcessId() + "(" + process.getVersion() + ")");
+                process.setStatus(Status.RUNNING);
+                process.setResultCode(0);
+
                 if (isPersistent) processHome.update();
 
                 getContainingServer().addProcessToIndex(ProcessWrapper.this);
@@ -526,7 +580,26 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         ((ProcessImplServer)getContainingServer()).notifyProcess(this);
     }
 
-    void setupOutputFile() {} // To be implemented
+    private ProcessOutputable report_file = null;
+    private String report_name = null;
+
+    public boolean createReport()
+    {
+        return process.isAssociatedReport();
+    }
+
+    void setupOutputFile() {
+        if (!createReport())
+            return;
+
+        report_file = process.getOutput().getOutputable(getQueueOwner(), getUserId(), getProcessName(), getReportType(), getSourceName());
+        report_name = report_file.getOutputName();
+    }
+
+    public ProcessOutputable getProcessOutputable()
+    {
+        return report_file;
+    }
 
     boolean isSleeping() {
         synchronized (mutex)
@@ -540,6 +613,17 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         synchronized (mutex)
         {
             if (isSleeping())
+            {
+                processRunner.doNotify();
+            }
+        }
+    }
+
+    public void notifyRunnerForDelete()
+    {
+        synchronized (mutex)
+        {
+            if (isNotRun() && processRunner != null && processRunner.isSleeping())
             {
                 processRunner.doNotify();
             }
@@ -804,7 +888,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         start(nextRun, isFailed());
     }
 
-    private void startNow() {
+    public void startNow() {
         start(new GregorianCalendar(), isFailed());
     }
 
@@ -820,6 +904,17 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             processRunner = QueujFactory.getProcessRunner(this, runTime, isFailed);
             processRunner.doStart();
             return true;
+        }
+    }
+
+    public void stop()
+    {
+        synchronized (mutex)
+        {
+            if (processRunner == null)
+                return;
+
+            processRunner.stop();
         }
     }
 }

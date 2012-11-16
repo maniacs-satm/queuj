@@ -333,7 +333,7 @@ public class ProcessBuilder
             @Override
             protected void doAction() {
                 ProcessServer ps = QueujFactory.getProcessServer(partition);
-                ProcessWrapper process = ps.getNewProcess(partition, is_persistent);
+                ProcessWrapper process = ProcessWrapper.getNewInstance(partition == null ? null : partition.getQueueOwnerKey(), is_persistent);
                 process.setDetails(process_name, queue, process_description, user,
                     occurrence, visibility, access, resilience, output,
                     pre_processes, post_processes, keep_completed, locale,

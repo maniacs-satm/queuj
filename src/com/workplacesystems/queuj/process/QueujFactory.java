@@ -134,7 +134,7 @@ public class QueujFactory {
                     ProcessWrapper process = (ProcessWrapper)result;
                     ((ProcessImplServer)process.getContainingServer()).commit();
                     if (doStart) {
-                        if (process.rescheduleRequired())
+                        if (process.rescheduleRequired(false))
                             process.interruptRunner();
                         else
                             process.start();

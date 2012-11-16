@@ -16,6 +16,8 @@
 
 package com.workplacesystems.queuj;
 
+import com.workplacesystems.queuj.Process;
+
 /** ProcessMatcher supports a 'matching' rule against existing processes. 
  * 
  *   For example, by creating an instance as an inner class, can determine if a process is for running a schedule.

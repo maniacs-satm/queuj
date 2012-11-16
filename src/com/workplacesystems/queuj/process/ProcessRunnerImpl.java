@@ -51,6 +51,10 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
         this.failed = failed;
     }
 
+    protected final ProcessWrapper getProcess() {
+        return process;
+    }
+
     public boolean isSleeping()
     {
         return parked;
@@ -60,6 +64,12 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
         park();
         doNotify();
     }
+
+    /**
+     * Currently does nothing and can't safely stop the thread (See http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html#stop()).
+     * But custom implementors may want to override this method to clear resources or set a 'stopping' flag for the thread to check.
+     */
+    public void stop() {}
 
     public synchronized void doNotify() {
         if (parked)
@@ -165,6 +175,7 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
     protected void releasePessimisticLocks() {}
     protected void preStart() {}
     protected void postStart() {}
+    protected void postFinish() {}
 
     protected void setStarted(boolean started) {
         this.started = started;
@@ -217,6 +228,8 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
                 postStart();
 
                 process.runProcess(this, failed);
+
+                postFinish();
 
                 // If job didn't fail update its status to complete and delete from the queue
                 if (process.isFailed()) {

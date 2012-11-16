@@ -16,7 +16,9 @@
 
 package com.workplacesystems.queuj;
 
+import com.workplacesystems.queuj.process.ProcessEntity;
 import com.workplacesystems.queuj.process.ProcessImplServer;
+import com.workplacesystems.queuj.process.ProcessOutputable;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujFactory;
 import java.io.Serializable;
@@ -59,6 +61,10 @@ public final class Process implements Serializable, Comparable {
         return processKey;
     }
 
+    public ProcessEntity getProcessEntity() {
+        return getProcess().getProcessEntity();
+    }
+
     public Serializable setParameter(String key, Serializable value) {
         return getProcess().setParameter(key, value);
     }
@@ -89,6 +95,24 @@ public final class Process implements Serializable, Comparable {
 
     public boolean isFailed() {
         return getProcess().isFailed();
+    }
+
+    public boolean isComplete() {
+        return getProcess().isComplete();
+    }
+
+    public boolean isRunError() {
+        return getProcess().isRunError();
+    }
+
+    public boolean createReport()
+    {
+        return getProcess().createReport();
+    }
+
+    public ProcessOutputable getProcessOutputable()
+    {
+        return getProcess().getProcessOutputable();
     }
 
     public GregorianCalendar getNextRunTime() {

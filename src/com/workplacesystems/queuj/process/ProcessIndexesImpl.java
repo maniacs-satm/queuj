@@ -66,7 +66,7 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
 
     private final Object mutex = SyncUtils.createMutex(this);
 
-    <T> T withReadLock(Callback<T> callback) {
+    public <T> T withReadLock(Callback<T> callback) {
         return SyncUtils.synchronizeRead(mutex, callback);
     }
 

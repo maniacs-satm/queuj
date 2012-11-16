@@ -24,6 +24,8 @@ public interface ProcessRunner
 {
     void doStart();
 
+    void stop();
+
     boolean isSleeping();
 
     void doNotify();

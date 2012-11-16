@@ -34,7 +34,7 @@ public abstract class Output implements Serializable
     
     public abstract Boolean producesOutput();
 
-    public abstract ProcessOutputable getOutputable(QueueOwner partition, User user, String process_name, String report_type, String source_name);
+    public abstract ProcessOutputable getOutputable(String queueOwner, String userId, String process_name, String report_type, String source_name);
 
     /**
      * Implement equals to use result of getClass.

@@ -16,10 +16,8 @@
 
 package com.workplacesystems.queuj.output;
 
-import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.process.ProcessOutputable;
-import com.workplacesystems.queuj.utils.User;
 
 /** Default Output manager for batch jobs.  This {@link Output} implementation does nothing. */
 public class NoOutput extends Output
@@ -32,7 +30,7 @@ public class NoOutput extends Output
     }
 
     @Override
-    public ProcessOutputable getOutputable(QueueOwner partition, User user, String process_name, String report_type, String source_name)
+    public ProcessOutputable getOutputable(String queueOwner, String userId, String process_name, String report_type, String source_name)
     {
         return null;
     }

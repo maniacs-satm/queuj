@@ -127,10 +127,6 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         getProcessScheduler().notifyProcess(process);
     }
 
-    public ProcessWrapper getNewProcess(QueueOwner queueOwner, boolean isPersistent) {
-        return ProcessWrapper.getNewInstance(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), isPersistent);
-    }
-
     public void delete(ProcessWrapper process) {
         try {
             processes.remove(process.getProcessKey());
