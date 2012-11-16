@@ -25,6 +25,7 @@ import com.workplacesystems.queuj.occurrence.RunOnce;
 import com.workplacesystems.queuj.process.ProcessIndexes;
 import com.workplacesystems.queuj.process.ProcessIndexesCallback;
 import com.workplacesystems.queuj.process.ProcessWrapper;
+import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.java.JavaProcessBuilder;
 import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
@@ -66,6 +67,9 @@ public class QueujSampleView extends FrameView {
         super(app);
 
         DOMConfigurator.configure(getClass().getResource("/META-INF/log4j.xml"));
+
+        // Init the queue
+        QueujFactory.getProcessServer((String)null);
 
         initComponents();
 
