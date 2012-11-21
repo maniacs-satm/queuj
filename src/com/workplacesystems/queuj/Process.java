@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import com.workplacesystems.queuj.utils.User;
 import java.util.GregorianCalendar;
+import java.util.Map;
 
 /**
  * This is the public interface to ProcessImpl and PartitionedProcessImpl.
@@ -37,17 +38,20 @@ public final class Process implements Serializable, Comparable {
 
     private Integer processKey;
 
+    private Map<String,Serializable> server_options;
+
     private transient ProcessWrapper process;
 
     public Process(ProcessWrapper process) {
         this.process = process;
         this.queueOwner = process.getQueueOwner();
         this.processKey = process.getProcessKey();
+        this.server_options = process.getServerOptions();
     }
 
     private synchronized ProcessWrapper getProcess() {
         if (process == null) {
-            ProcessServer server = QueujFactory.getProcessServer(queueOwner);
+            ProcessServer server = QueujFactory.getProcessServer(queueOwner, server_options);
             process = ((ProcessImplServer)server).get(processKey);
         }
         return process;
@@ -119,16 +123,20 @@ public final class Process implements Serializable, Comparable {
         return getProcess().getNextRunTime();
     }
 
-    public boolean restart(User user) {
-        return getProcess().restart(user);
+    public void updateOccurrence(final Occurrence occurrence) {
+        getProcess().updateOccurrence(occurrence);
+    }
+
+    public boolean restart(User user, QueueOwner activeQueueOwner) {
+        return getProcess().restart(user, activeQueueOwner);
     }
 
     public boolean restart() {
         return getProcess().restart();
     }
 
-    public boolean delete(User user) {
-        return getProcess().delete(user);
+    public boolean delete(User user, QueueOwner activeQueueOwner) {
+        return getProcess().delete(user, activeQueueOwner);
     }
 
     public boolean delete() {

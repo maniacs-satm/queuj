@@ -66,11 +66,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
 
     private final Object mutex = SyncUtils.createMutex(this);
 
-    public <T> T withReadLock(Callback<T> callback) {
+    public <T> T readLocked(Callback<T> callback) {
         return SyncUtils.synchronizeRead(mutex, callback);
     }
 
-    private <T> T withWriteLock(Callback<T> callback) {
+    private <T> T writeLocked(Callback<T> callback) {
         return SyncUtils.synchronizeWrite(mutex, callback);
     }
 
@@ -176,7 +176,7 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
 
     public void finalizeIndexes(final boolean commit)
     {
-        withWriteLock(new Callback<Void>() {
+        writeLocked(new Callback<Void>() {
             @Override
             protected void doAction() {
                 finalizeIndex(not_run_processes, commit, "Not Run Map", false);

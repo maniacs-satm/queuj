@@ -22,7 +22,9 @@ import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.utilsj.Callback;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import org.jboss.seam.Component;
 import org.jboss.seam.async.Asynchronous;
 
@@ -36,7 +38,7 @@ public class SeamFactory extends QueujFactory {
     protected void init() {
         List<String> queueOwners = getProcessDAO().findQueueOwners();
         for (String queueOwner : queueOwners) {
-            ((ProcessImplServer)getProcessServer0(queueOwner)).init();
+            ((ProcessImplServer)getProcessServer0(queueOwner, null)).init();
         }
     }
 
@@ -50,10 +52,12 @@ public class SeamFactory extends QueujFactory {
         return (QueujTransaction)Component.getInstance(SeamTransaction.class, true);
     }
 
-    protected ProcessPersistence getPersistence0(String queueOwner) {
+    @Override
+    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Serializable> server_options) {
         return (ProcessPersistence)Component.getInstance(ProcessImplHome.class, true);
     }
 
+    @Override
     public <T> Callback<T> getAsyncCallback0(final Callback<T> callback) {
         return new Callback<T>() {
             private Asynchronous async = (new Asynchronous() {

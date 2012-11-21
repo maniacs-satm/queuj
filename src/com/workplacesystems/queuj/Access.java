@@ -43,12 +43,12 @@ public abstract class Access implements Serializable
     /**
      * Is the supplied Process restartable for the supplied user.
      */
-    public abstract boolean canRestart(Process process, User user, String active_partition);
+    public abstract boolean canRestart(Process process, User user, QueueOwner active_partition);
 
     /**
      * Is the supplied Process deletable for the supplied user.
      */
-    public abstract boolean canDelete(Process process, User user, String active_partition);
+    public abstract boolean canDelete(Process process, User user, QueueOwner active_partition);
 
     /**
      * Implement equals to use result of getClass.

@@ -22,11 +22,14 @@ import com.workplacesystems.queuj.process.ProcessPersistence;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
-import com.workplacesystems.utilsj.Callback;
+import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.queuj.utils.QueujException;
+import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -69,7 +72,7 @@ public class JPAFactory extends QueujFactory {
         tlEm.set(emf.createEntityManager());
         List<String> queueOwners = getProcessDAO().findQueueOwners();
         for (String queueOwner : queueOwners) {
-            ((ProcessImplServer)getProcessServer0(queueOwner)).init();
+            ((ProcessImplServer)getProcessServer0(queueOwner, null)).init();
         }
         tlEm.remove();
     }
@@ -156,7 +159,8 @@ public class JPAFactory extends QueujFactory {
         };
     }
 
-    protected ProcessPersistence getPersistence0(final String queueOwner) {
+    @Override
+    protected ProcessPersistence getPersistence0(final String queueOwner, Map<String, Serializable> server_options) {
         return new ProcessPersistence<ProcessImpl>() {
 
             private ProcessImpl instance = null;
@@ -167,7 +171,7 @@ public class JPAFactory extends QueujFactory {
 
             public ProcessImpl getInstance() {
                 if (instance == null)
-                    instance = (ProcessImpl)getNewProcessEntity0(queueOwner, true);
+                    instance = (ProcessImpl)getNewProcessEntity0(queueOwner, true, null);
                 return instance;
             }
 

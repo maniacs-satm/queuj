@@ -204,7 +204,7 @@ public class ProcessScheduler extends BackgroundProcess
         {
             synchronized (unpark_process.run_mutex)
             {
-                Object ret = ps.withReadLock(new Callback()
+                Object ret = ps.readLocked(new Callback()
                 {
                     @Override
                     protected void doAction()
@@ -241,7 +241,7 @@ public class ProcessScheduler extends BackgroundProcess
             }
         }
 
-        return ((Boolean)ps.withReadLock(new Callback()
+        return ((Boolean)ps.readLocked(new Callback()
         {
             @Override
             protected void doAction()

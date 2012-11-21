@@ -33,6 +33,7 @@ import com.workplacesystems.utilsj.collections.TransactionalSortedFilterableBidi
 import com.workplacesystems.utilsj.collections.decorators.SynchronizedFilterableCollection;
 import com.workplacesystems.utilsj.collections.decorators.SynchronizedTransactionalSortedFilterableBidiMap;
 import java.io.Serializable;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 
@@ -183,7 +184,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return processes.get(key);
     }
 
-    public <T> T withReadLock(Callback<T> callback) {
+    public <T> T readLocked(Callback<T> callback) {
         return SyncUtils.synchronizeRead(processes, callback);
     }
 
@@ -204,7 +205,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
     }
 
     public boolean isProcessQueued(final ProcessMatcher matcher) {
-        return withReadLock(new Callback<Boolean>() {
+        return readLocked(new Callback<Boolean>() {
 
             @Override
             protected void doAction() {
@@ -220,6 +221,10 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         });
     }
 
+    public boolean scheduleOverride(ProcessWrapper process, GregorianCalendar nextRun) {
+        return false;
+    }
+
     public boolean addProcessToIndex(ProcessWrapper process)
     {
         return indexes.addProcessToIndex(process);
@@ -231,7 +236,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
     }
 
     public <R> R indexesWithReadLock(final ProcessIndexesCallback<R> indexesCallback) {
-        return indexes.withReadLock(new Callback<R>() {
+        return indexes.readLocked(new Callback<R>() {
             @Override
             protected void doAction() {
                 _return(indexesCallback.readIndexes(indexes));

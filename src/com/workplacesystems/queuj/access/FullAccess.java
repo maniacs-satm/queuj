@@ -18,6 +18,7 @@ package com.workplacesystems.queuj.access;
 
 import com.workplacesystems.queuj.Access;
 import com.workplacesystems.queuj.Process;
+import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.utils.User;
 
 /**
@@ -35,13 +36,13 @@ public class FullAccess extends Access
     }
 
     @Override
-    public boolean canRestart(Process process, User user, String active_partition)
+    public boolean canRestart(Process process, User user, QueueOwner active_partition)
     {
         return true;
     }
 
     @Override
-    public boolean canDelete(Process process, User user, String active_partition)
+    public boolean canDelete(Process process, User user, QueueOwner active_partition)
     {
         return true;
     }

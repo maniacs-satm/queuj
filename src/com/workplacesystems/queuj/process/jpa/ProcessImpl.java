@@ -16,19 +16,19 @@
 
 package com.workplacesystems.queuj.process.jpa;
 
-import com.workplacesystems.queuj.process.ProcessEntity;
-import com.workplacesystems.queuj.process.ProcessParameters;
 import com.workplacesystems.queuj.Access;
 import com.workplacesystems.queuj.Occurrence;
 import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.Resilience;
 import com.workplacesystems.queuj.Visibility;
+import com.workplacesystems.queuj.process.ProcessEntity;
+import com.workplacesystems.queuj.process.ProcessParameters;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,6 +40,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
@@ -187,8 +188,15 @@ public class ProcessImpl implements ProcessEntity, Serializable {
     public boolean isKeepCompleted() { return keepCompleted; }
     public void setKeepCompleted(boolean keepCompleted) { this.keepCompleted = keepCompleted; }
 
+    // Entity doesn't require a reverse reference to the wrapper for JPA and Seam implementations
+    public void setProcessWrapper(ProcessWrapper processWrapper) {}
+
     // Implementation options not currently required for JPA and Seam implementations
-    public void setImplementationOptions(HashMap<String, Object> implementation_options, ProcessWrapper process_wrapper) {}
+    public void setImplementationOptions(Map<String, Serializable> implementation_options) {}
+
+    // No special options required for retrieval of the server
+    @Transient
+    public Map<String,Serializable> getServerOptions() { return null; }
 
     @Override
     public boolean equals(Object obj) {

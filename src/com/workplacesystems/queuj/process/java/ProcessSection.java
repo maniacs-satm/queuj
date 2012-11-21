@@ -51,6 +51,11 @@ public abstract class ProcessSection<T,S> implements Serializable
         this.run_object = run_object;
     }
 
+    protected ProcessSection(T run_object, String run_method_str)
+    {
+        this(run_object, run_method_str, new Class [0], new Object [0]);
+    }
+
     // retrieve from list within outer class if missing (since transient)
     public T getRunObject()
     {

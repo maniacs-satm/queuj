@@ -57,6 +57,6 @@ public class QueujInitialiser {
         Queue<SeamProcessBuilder> seamQueue = qb.newQueue();
         Contexts.getApplicationContext().set("DEFAULT_QUEUE", seamQueue);
 
-        QueujFactory.getProcessServer((String)null);
+        QueujFactory.getProcessServer((String)null, null);
     }
 }

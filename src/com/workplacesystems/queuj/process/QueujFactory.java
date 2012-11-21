@@ -20,11 +20,11 @@ import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Version;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
-import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
+import com.workplacesystems.utilsj.Callback;
 import java.io.Serializable;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -73,24 +73,24 @@ public class QueujFactory {
 
     protected QueujFactory() {}
 
-    public static final void setDefaultImplOptions(HashMap<String, Object> implementation_options) {
+    public static final void setDefaultImplOptions(Map<String, Serializable> implementation_options) {
         instance.setDefaultImplOptions0(implementation_options);
     }
 
-    public static final ProcessServer getProcessServer(QueueOwner queueOwner) {
-        return instance.getProcessServer0(queueOwner == null ? null : queueOwner.getQueueOwnerKey());
+    public static final ProcessServer getProcessServer(QueueOwner queueOwner, Map<String, Serializable> server_options) {
+        return instance.getProcessServer0(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), server_options);
     }
 
-    public static final ProcessServer getProcessServer(String queueOwner) {
-        return instance.getProcessServer0(queueOwner);
+    public static final ProcessServer getProcessServer(String queueOwner, Map<String, Serializable> server_options) {
+        return instance.getProcessServer0(queueOwner, server_options);
     }
 
     public static final QueujTransaction getTransaction() {
         return instance.getTransaction0();
     }
 
-    public static final ProcessPersistence getPersistence(String queueOwner) {
-        return instance.getPersistence0(queueOwner);
+    public static final ProcessPersistence getPersistence(String queueOwner, Map<String, Serializable> server_options) {
+        return instance.getPersistence0(queueOwner, server_options);
     }
 
     public static final ProcessDAO getProcessDAO() {
@@ -101,8 +101,8 @@ public class QueujFactory {
         return instance.getAsyncCallback0(callback);
     }
 
-    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent) {
-        return instance.getNewProcessEntity0(queueOwner, isPersistent);
+    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent, Map<String, Serializable> server_options) {
+        return instance.getNewProcessEntity0(queueOwner, isPersistent, server_options);
     }
 
     static final ProcessRunner getProcessRunner(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed) {
@@ -111,9 +111,9 @@ public class QueujFactory {
 
     protected void init() {}
 
-    protected void setDefaultImplOptions0(HashMap<String, Object> implementation_options) {}
+    protected void setDefaultImplOptions0(Map<String, Serializable> implementation_options) {}
 
-    protected ProcessServer getProcessServer0(String queueOwner) {
+    protected ProcessServer getProcessServer0(String queueOwner, Map<String, Serializable> server_options) {
         return ProcessImplServer.newInstance(queueOwner);
     }
 
@@ -146,7 +146,7 @@ public class QueujFactory {
         };
     }
 
-    protected ProcessPersistence getPersistence0(String queueOwner) {
+    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Serializable> server_options) {
         return null;
     }
 
@@ -158,7 +158,7 @@ public class QueujFactory {
         return callback;
     }
 
-    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent) {
+    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent, Map<String, Serializable> server_options) {
         return new ProcessImpl();
     }
 

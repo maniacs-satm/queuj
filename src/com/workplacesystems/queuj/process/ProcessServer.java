@@ -18,6 +18,7 @@ package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.utilsj.Callback;
+import java.util.GregorianCalendar;
 
 /**
  *
@@ -31,7 +32,7 @@ public interface ProcessServer extends com.workplacesystems.queuj.ProcessServer 
 
     public void delete(ProcessWrapper process);
 
-    public <T> T withReadLock(Callback<T> callback);
+    public <T> T readLocked(Callback<T> callback);
 
     public Object getMutex();
 
@@ -40,4 +41,6 @@ public interface ProcessServer extends com.workplacesystems.queuj.ProcessServer 
     public boolean addProcessToIndex(ProcessWrapper process);
 
     public boolean removeProcessFromIndex(ProcessWrapper process);
+
+    public boolean scheduleOverride(ProcessWrapper process, GregorianCalendar nextRun);
 }

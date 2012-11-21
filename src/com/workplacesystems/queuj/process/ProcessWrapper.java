@@ -36,8 +36,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,16 +73,16 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return wrapper;
     }
 
-    public static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent) {
+    public static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent, Map<String,Serializable> server_options) {
         ProcessWrapper processWrapper;
         if (isPersistent) {
-            ProcessPersistence<ProcessEntity> processHome = QueujFactory.getPersistence(queueOwner);
+            ProcessPersistence<ProcessEntity> processHome = QueujFactory.getPersistence(queueOwner, server_options);
             processHome.clearInstance();
             ProcessEntity process = processHome.getInstance();
             processWrapper = getNewInstance(queueOwner, process, true);
         }
         else {
-            ProcessEntity process = QueujFactory.getNewProcessEntity(queueOwner, false);
+            ProcessEntity process = QueujFactory.getNewProcessEntity(queueOwner, false, server_options);
             process.setProcessId(getNextProcessId());
             processWrapper = getNewInstance(queueOwner, process, false);
         }
@@ -96,7 +96,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     private ProcessPersistence<ProcessImpl> getProcessPersistence() {
         if (!isPersistent)
             return null;
-        ProcessPersistence<ProcessImpl> processHome = QueujFactory.getPersistence(queueOwner);
+        ProcessPersistence<ProcessImpl> processHome = QueujFactory.getPersistence(queueOwner, getServerOptions());
         processHome.clearInstance();
         processHome.setId(process.getProcessId());
         this.process = processHome.getInstance();
@@ -104,7 +104,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     }
 
     public ProcessServer getContainingServer() {
-        return QueujFactory.getProcessServer(queueOwner);
+        return QueujFactory.getProcessServer(queueOwner, getServerOptions());
     }
 
     public boolean isAddedToServer() {
@@ -116,7 +116,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     public void setDetails(String process_name, Queue queue, String process_description, User user,
             Occurrence occurrence, Visibility visibility, Access access, Resilience resilience, Output output,
             FilterableArrayList<? extends SequencedProcess> pre_processes, FilterableArrayList<? extends SequencedProcess> post_processes,
-            boolean keep_completed, Locale locale, HashMap<String,Object> implementation_options) {
+            boolean keep_completed, Locale locale, Map<String,Serializable> implementation_options) {
 
         ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
         process.setProcessName(process_name);
@@ -144,7 +144,8 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         parameters.setValue(ProcessParameters.PRE_PROCESSES, pre_processes);
         process.setParameters(parameters);
 
-        process.setImplementationOptions(implementation_options, this);
+        process.setProcessWrapper(this);
+        process.setImplementationOptions(implementation_options);
 
         if (isPersistent) processHome.persist();
     }
@@ -174,6 +175,10 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         Serializable ret = parameters.setValue(parameterName, parameterValue);
         process.setParameters(parameters);
         return ret;
+    }
+
+    public Map<String,Serializable> getServerOptions() {
+        return process.getServerOptions();
     }
 
     //-------------------------------------------- Get job details --------------------------------------------
@@ -361,23 +366,23 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return true;
     }
 
-    public boolean canDelete(User user) {
+    public boolean canDelete(User user, QueueOwner activeQueueOwner) {
         if (isRunning())
             return false;
 
-        return process.getAccess().canDelete(new Process(this), user, queueOwner);
+        return process.getAccess().canDelete(new Process(this), user, activeQueueOwner);
     }
 
-    public boolean canRestart(User user) {
+    public boolean canRestart(User user, QueueOwner activeQueueOwner) {
         if (!isFailed())
             return false;
 
-        return process.getAccess().canRestart(new Process(this), user, queueOwner);
+        return process.getAccess().canRestart(new Process(this), user, activeQueueOwner);
     }
 
     //-------------------------------------------- Update job details/status --------------------------------------------
 
-    void updateOccurrence(final Occurrence occurrence) {
+    public void updateOccurrence(final Occurrence occurrence) {
         doTransaction(new Callback() {
 
             @Override
@@ -529,11 +534,11 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         });
     }
 
-    public boolean delete(User user) {
+    public boolean delete(User user, QueueOwner activeQueueOwner) {
         if (deleted)
             return false;
 
-        if (!canDelete(user))
+        if (!canDelete(user, activeQueueOwner))
             return false;
 
         return delete();
@@ -559,11 +564,11 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return true;
     }
 
-    public boolean restart(User user) {
+    public boolean restart(User user, QueueOwner activeQueueOwner) {
         if (deleted)
             return false;
 
-        if (!canRestart(user))
+        if (!canRestart(user, activeQueueOwner))
             return false;
 
         return restart();
@@ -601,14 +606,14 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return report_file;
     }
 
-    boolean isSleeping() {
+    public boolean isSleeping() {
         synchronized (mutex)
         {
             return isNotRun() && processRunner != null && processRunner.isSleeping() && !isDeleted();
         }
     }
 
-    void notifyRunner()
+    public void notifyRunner()
     {
         synchronized (mutex)
         {
@@ -885,7 +890,12 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
             log.debug("Next run date for " + desc + " is " + nextRun.getTime().toString());
         }
 
-        start(nextRun, isFailed());
+        // Implementations can schedule the job themselves calling start(runTime, isFailed)
+        // closer to the scheduled run time. This may allow the ProcessServer to be unloaded
+        // from memory and re-loaded closer to the time. The default implementation
+        // just returns false and does the scheduling in the ProcessScheduler.
+        if (!getContainingServer().scheduleOverride(this, nextRun))
+            start(nextRun, isFailed());
     }
 
     public void startNow() {
@@ -896,7 +906,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return start(new GregorianCalendar(), true);
     }
 
-    private boolean start(GregorianCalendar runTime, boolean isFailed) {
+    public boolean start(GregorianCalendar runTime, boolean isFailed) {
         synchronized (mutex) {
             if (processRunner != null)
                 return false;
