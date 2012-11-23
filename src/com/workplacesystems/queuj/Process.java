@@ -38,7 +38,7 @@ public final class Process implements Serializable, Comparable {
 
     private Integer processKey;
 
-    private Map<String,Serializable> server_options;
+    private Map<String,Object> server_options;
 
     private transient ProcessWrapper process;
 
@@ -91,6 +91,10 @@ public final class Process implements Serializable, Comparable {
 
     public void attach() {
         getProcess().attach();
+    }
+
+    public boolean attach(long timeout) {
+        return getProcess().attach(timeout);
     }
 
     public boolean isNotRun() {

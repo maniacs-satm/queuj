@@ -72,9 +72,9 @@ public interface ProcessEntity {
 
     public void setProcessWrapper(ProcessWrapper processWrapper);
 
-    public void setImplementationOptions(Map<String, Serializable> implementation_options);
+    public void setImplementationOptions(Map<String, Object> implementation_options);
 
-    public Map<String,Serializable> getServerOptions();
+    public Map<String,Object> getServerOptions();
 
     public String getProcessName();
     public void setProcessName(String processName);

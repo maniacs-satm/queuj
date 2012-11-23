@@ -53,7 +53,7 @@ public class SeamFactory extends QueujFactory {
     }
 
     @Override
-    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Serializable> server_options) {
+    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Object> server_options) {
         return (ProcessPersistence)Component.getInstance(ProcessImplHome.class, true);
     }
 

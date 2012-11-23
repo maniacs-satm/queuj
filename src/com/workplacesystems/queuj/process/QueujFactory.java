@@ -73,15 +73,15 @@ public class QueujFactory {
 
     protected QueujFactory() {}
 
-    public static final void setDefaultImplOptions(Map<String, Serializable> implementation_options) {
+    public static final void setDefaultImplOptions(Map<String, Object> implementation_options) {
         instance.setDefaultImplOptions0(implementation_options);
     }
 
-    public static final ProcessServer getProcessServer(QueueOwner queueOwner, Map<String, Serializable> server_options) {
+    public static final ProcessServer getProcessServer(QueueOwner queueOwner, Map<String, Object> server_options) {
         return instance.getProcessServer0(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), server_options);
     }
 
-    public static final ProcessServer getProcessServer(String queueOwner, Map<String, Serializable> server_options) {
+    public static final ProcessServer getProcessServer(String queueOwner, Map<String, Object> server_options) {
         return instance.getProcessServer0(queueOwner, server_options);
     }
 
@@ -89,7 +89,7 @@ public class QueujFactory {
         return instance.getTransaction0();
     }
 
-    public static final ProcessPersistence getPersistence(String queueOwner, Map<String, Serializable> server_options) {
+    public static final ProcessPersistence getPersistence(String queueOwner, Map<String, Object> server_options) {
         return instance.getPersistence0(queueOwner, server_options);
     }
 
@@ -101,7 +101,7 @@ public class QueujFactory {
         return instance.getAsyncCallback0(callback);
     }
 
-    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent, Map<String, Serializable> server_options) {
+    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent, Map<String, Object> server_options) {
         return instance.getNewProcessEntity0(queueOwner, isPersistent, server_options);
     }
 
@@ -111,9 +111,9 @@ public class QueujFactory {
 
     protected void init() {}
 
-    protected void setDefaultImplOptions0(Map<String, Serializable> implementation_options) {}
+    protected void setDefaultImplOptions0(Map<String, Object> implementation_options) {}
 
-    protected ProcessServer getProcessServer0(String queueOwner, Map<String, Serializable> server_options) {
+    protected ProcessServer getProcessServer0(String queueOwner, Map<String, Object> server_options) {
         return ProcessImplServer.newInstance(queueOwner);
     }
 
@@ -146,7 +146,7 @@ public class QueujFactory {
         };
     }
 
-    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Serializable> server_options) {
+    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Object> server_options) {
         return null;
     }
 
@@ -158,7 +158,7 @@ public class QueujFactory {
         return callback;
     }
 
-    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent, Map<String, Serializable> server_options) {
+    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent, Map<String, Object> server_options) {
         return new ProcessImpl();
     }
 

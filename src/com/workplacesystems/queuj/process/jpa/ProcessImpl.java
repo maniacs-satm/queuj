@@ -192,11 +192,11 @@ public class ProcessImpl implements ProcessEntity, Serializable {
     public void setProcessWrapper(ProcessWrapper processWrapper) {}
 
     // Implementation options not currently required for JPA and Seam implementations
-    public void setImplementationOptions(Map<String, Serializable> implementation_options) {}
+    public void setImplementationOptions(Map<String, Object> implementation_options) {}
 
     // No special options required for retrieval of the server
     @Transient
-    public Map<String,Serializable> getServerOptions() { return null; }
+    public Map<String,Object> getServerOptions() { return null; }
 
     @Override
     public boolean equals(Object obj) {

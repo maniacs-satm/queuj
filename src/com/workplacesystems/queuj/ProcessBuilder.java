@@ -104,7 +104,7 @@ public class ProcessBuilder
     
     protected boolean trace = false;
 
-    private HashMap<String,Serializable> implementation_options = new HashMap<String, Serializable>();
+    private HashMap<String,Object> implementation_options = new HashMap<String, Object>();
 
     /** The page name. */
     private String source_name;
@@ -318,7 +318,7 @@ public class ProcessBuilder
     /**
      * Set options to be used directly by the queuj implementation
      */
-    public void setImplementationOption(String option_key, Serializable option_value)
+    public void setImplementationOption(String option_key, Object option_value)
     {
         implementation_options.put(option_key, option_value);
     }

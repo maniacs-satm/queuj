@@ -160,7 +160,7 @@ public class JPAFactory extends QueujFactory {
     }
 
     @Override
-    protected ProcessPersistence getPersistence0(final String queueOwner, Map<String, Serializable> server_options) {
+    protected ProcessPersistence getPersistence0(final String queueOwner, Map<String, Object> server_options) {
         return new ProcessPersistence<ProcessImpl>() {
 
             private ProcessImpl instance = null;

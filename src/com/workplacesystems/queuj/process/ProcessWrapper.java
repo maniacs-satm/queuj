@@ -73,7 +73,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return wrapper;
     }
 
-    public static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent, Map<String,Serializable> server_options) {
+    public static ProcessWrapper getNewInstance(String queueOwner, boolean isPersistent, Map<String,Object> server_options) {
         ProcessWrapper processWrapper;
         if (isPersistent) {
             ProcessPersistence<ProcessEntity> processHome = QueujFactory.getPersistence(queueOwner, server_options);
@@ -116,7 +116,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
     public void setDetails(String process_name, Queue queue, String process_description, User user,
             Occurrence occurrence, Visibility visibility, Access access, Resilience resilience, Output output,
             FilterableArrayList<? extends SequencedProcess> pre_processes, FilterableArrayList<? extends SequencedProcess> post_processes,
-            boolean keep_completed, Locale locale, Map<String,Serializable> implementation_options) {
+            boolean keep_completed, Locale locale, Map<String,Object> implementation_options) {
 
         ProcessPersistence<ProcessImpl> processHome = getProcessPersistence();
         process.setProcessName(process_name);
@@ -177,7 +177,7 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
         return ret;
     }
 
-    public Map<String,Serializable> getServerOptions() {
+    public Map<String,Object> getServerOptions() {
         return process.getServerOptions();
     }
 
@@ -869,6 +869,26 @@ public class ProcessWrapper implements Comparable<ProcessWrapper> {
                 }
                 catch (InterruptedException ie) {}
             }
+        }
+    }
+
+    public boolean attach(long timeout) {
+        final long end = System.currentTimeMillis() + timeout;
+        synchronized (mutex)
+        {
+            if (processRunner == null)
+                return true;
+
+            long wait_timeout = end - System.currentTimeMillis();
+            while (processRunner != null && wait_timeout > 0) {
+                try {
+                    mutex.wait(wait_timeout);
+                }
+                catch (InterruptedException ie) {}
+                wait_timeout = end - System.currentTimeMillis();
+            }
+
+            return processRunner == null;
         }
     }
 

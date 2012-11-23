@@ -43,7 +43,7 @@ public class ForceRescheduleException extends RuntimeException {
         return commit_current_section;
     }
 
-    Occurrence getNewOccurence(Occurrence old_occurence)
+    protected Occurrence getNewOccurence(Occurrence old_occurence)
     {
         return occurence;
     }
