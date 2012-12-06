@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @author dave
  */
-public interface ProcessEntity {
+public interface ProcessEntity<K extends Serializable & Comparable> {
 
     public enum Status {
         RUN_OK(0, "qj.enum.ProcessImplStatus.RunOK"),
@@ -59,8 +59,9 @@ public interface ProcessEntity {
         }
     };
 
-    public Integer getProcessId();
-    public void setProcessId(Integer processId);
+    public K getProcessId();
+    public void setProcessId(K processId);
+    public K getNextProcessId();
 
     public Integer getVersion();
 
@@ -70,7 +71,7 @@ public interface ProcessEntity {
     public String getUUID();
     public void setUUID(String uuid);
 
-    public void setProcessWrapper(ProcessWrapper processWrapper);
+    public void setProcessWrapper(ProcessWrapper<K> processWrapper);
 
     public void setImplementationOptions(Map<String, Object> implementation_options);
 

@@ -32,15 +32,15 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author dave
  */
-public class QueujFactory {
+public abstract class QueujFactory<K extends Serializable & Comparable> {
 
     private final static Log log = LogFactory.getLog(QueujFactory.class);
 
-    private static final QueujFactory instance;
+    private static final QueujFactory<?> instance;
 
     static {
         try {
-            QueujFactory instance0 = null;
+            QueujFactory<?> instance0 = null;
 
             String implClazzStr = System.getProperty("com.workplacesystems.queuj.QueujFactory");
             if (implClazzStr != null) {
@@ -57,7 +57,7 @@ public class QueujFactory {
             }
 
             if (instance0 == null)
-                instance0 = new QueujFactory();
+                instance0 = new QueujFactoryImpl();
 
             instance = instance0;
 
@@ -77,19 +77,19 @@ public class QueujFactory {
         instance.setDefaultImplOptions0(implementation_options);
     }
 
-    public static final ProcessServer getProcessServer(QueueOwner queueOwner, Map<String, Object> server_options) {
+    public static final ProcessServer<?> getProcessServer(QueueOwner queueOwner, Map<String, Object> server_options) {
         return instance.getProcessServer0(queueOwner == null ? null : queueOwner.getQueueOwnerKey(), server_options);
     }
 
-    public static final ProcessServer getProcessServer(String queueOwner, Map<String, Object> server_options) {
+    public static final ProcessServer<?> getProcessServer(String queueOwner, Map<String, Object> server_options) {
         return instance.getProcessServer0(queueOwner, server_options);
     }
 
-    public static final QueujTransaction getTransaction() {
+    public static final QueujTransaction<?> getTransaction() {
         return instance.getTransaction0();
     }
 
-    public static final ProcessPersistence getPersistence(String queueOwner, Map<String, Object> server_options) {
+    public static final ProcessPersistence<?,?> getPersistence(String queueOwner, Map<String, Object> server_options) {
         return instance.getPersistence0(queueOwner, server_options);
     }
 
@@ -101,68 +101,28 @@ public class QueujFactory {
         return instance.getAsyncCallback0(callback);
     }
 
-    static final ProcessEntity getNewProcessEntity(String queueOwner, boolean isPersistent, Map<String, Object> server_options) {
+    static final ProcessEntity<?> getNewProcessEntity(String queueOwner, boolean isPersistent, Map<String, Object> server_options) {
         return instance.getNewProcessEntity0(queueOwner, isPersistent, server_options);
     }
 
     static final ProcessRunner getProcessRunner(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed) {
         return instance.getProcessRunner0(process, runTime, isFailed);
     }
+    protected abstract void init();
 
-    protected void init() {}
+    protected abstract void setDefaultImplOptions0(Map<String, Object> implementation_options);
 
-    protected void setDefaultImplOptions0(Map<String, Object> implementation_options) {}
+    protected abstract ProcessServer<K> getProcessServer0(String queueOwner, Map<String, Object> server_options);
 
-    protected ProcessServer getProcessServer0(String queueOwner, Map<String, Object> server_options) {
-        return ProcessImplServer.newInstance(queueOwner);
-    }
+    protected abstract QueujTransaction<K> getTransaction0();
 
-    protected QueujTransaction getTransaction0() {
-        return new QueujTransaction() {
+    protected abstract ProcessPersistence<ProcessEntity<K>,K> getPersistence0(String queueOwner, Map<String, Object> server_options);
 
-            public <T> T doTransaction(ProcessWrapper process, Callback<T> callback, boolean doStart) {
-                return doTransaction(process.isPersistent(), callback, doStart);
-            }
+    protected abstract ProcessDAO getProcessDAO0();
 
-            public <T> T doTransaction(boolean persistent, Callback<T> callback, boolean doStart) {
-                if (persistent)
-                    throw new QueujException("No persistence has been enabled.");
+    public abstract <T> Callback<T> getAsyncCallback0(Callback<T> callback);
 
-                T result = callback.action();
+    protected abstract ProcessEntity<K> getNewProcessEntity0(String queueOwner, boolean isPersistent, Map<String, Object> server_options);
 
-                if (result instanceof ProcessWrapper) {
-                    ProcessWrapper process = (ProcessWrapper)result;
-                    ((ProcessImplServer)process.getContainingServer()).commit();
-                    if (doStart) {
-                        if (process.rescheduleRequired(false))
-                            process.interruptRunner();
-                        else
-                            process.start();
-                    }
-                }
-
-                return result;
-            }
-        };
-    }
-
-    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Object> server_options) {
-        return null;
-    }
-
-    protected ProcessDAO getProcessDAO0() {
-        return null;
-    }
-
-    public <T> Callback<T> getAsyncCallback0(Callback<T> callback) {
-        return callback;
-    }
-
-    protected ProcessEntity getNewProcessEntity0(String queueOwner, boolean isPersistent, Map<String, Object> server_options) {
-        return new ProcessImpl();
-    }
-
-    protected ProcessRunner getProcessRunner0(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed) {
-        return new ProcessRunnerImpl(process, runTime, isFailed);
-    }
+    protected abstract ProcessRunner getProcessRunner0(ProcessWrapper process, GregorianCalendar runTime, boolean isFailed);
 }

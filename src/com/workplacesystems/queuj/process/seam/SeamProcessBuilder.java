@@ -62,7 +62,7 @@ public class SeamProcessBuilder extends ProcessBuilder {
     }
 
     @Override
-    protected void setupProcess(Process process)
+    protected <K extends Serializable & Comparable> void setupProcess(Process<K> process)
     {
         process.setParameter(JavaProcessServer.JAVA_PROCESS_SESSION, java_process_session);
         for (Map.Entry<String,Serializable> entry : parameters.entrySet())

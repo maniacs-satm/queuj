@@ -44,7 +44,7 @@ import org.jboss.seam.core.Events;
  */
 @Name("seamTransactions")
 @Scope(ScopeType.STATELESS)
-public class SeamTransaction implements QueujTransaction {
+public class SeamTransaction implements QueujTransaction<Integer> {
 
     private final static Log log = LogFactory.getLog(ProcessWrapper.class);
 
@@ -65,7 +65,7 @@ public class SeamTransaction implements QueujTransaction {
     }
 
     @Transactional(TransactionPropagationType.REQUIRED)
-    public <T> T doTransaction(ProcessWrapper process, Callback<T> callback, boolean doStart) {
+    public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, boolean doStart) {
         return doTransaction(process.isPersistent(), callback, doStart);
     }
 
@@ -87,9 +87,9 @@ public class SeamTransaction implements QueujTransaction {
         if (result instanceof ProcessWrapper) {
             log.debug("Adding process " + ((ProcessWrapper)result).getProcessKey() + "(" +
                     ((ProcessWrapper)result).getProcessVersion() + ") to transaction " + context.transactionId);
-            context.processes.add((ProcessWrapper)result);
+            context.processes.add((ProcessWrapper<Integer>)result);
             if  (doStart)
-                context.startProcesses.add((ProcessWrapper)result);
+                context.startProcesses.add((ProcessWrapper<Integer>)result);
         }
         return result;
     }
@@ -147,7 +147,7 @@ public class SeamTransaction implements QueujTransaction {
         private int transactionId = ++transactionCount;
         private boolean obsolete = false;
         private boolean callbacksSet = false;
-        private ArrayList<ProcessWrapper> processes = new ArrayList<ProcessWrapper>();
-        private ArrayList<ProcessWrapper> startProcesses = new ArrayList<ProcessWrapper>();
+        private ArrayList<ProcessWrapper<Integer>> processes = new ArrayList<ProcessWrapper<Integer>>();
+        private ArrayList<ProcessWrapper<Integer>> startProcesses = new ArrayList<ProcessWrapper<Integer>>();
     }
 }

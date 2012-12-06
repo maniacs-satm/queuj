@@ -17,14 +17,15 @@
 package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.utilsj.Callback;
+import java.io.Serializable;
 
 /**
  *
  * @author dave
  */
-public interface QueujTransaction {
+public interface QueujTransaction<K extends Serializable & Comparable> {
 
-    public <T> T doTransaction(ProcessWrapper process, Callback<T> callback, boolean doStart);
+    public <T> T doTransaction(ProcessWrapper<K> process, Callback<T> callback, boolean doStart);
 
     public <T> T doTransaction(boolean persistent, Callback<T> callback, boolean doStart);
 }

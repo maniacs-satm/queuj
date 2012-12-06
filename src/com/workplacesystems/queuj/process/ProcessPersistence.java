@@ -16,17 +16,19 @@
 
 package com.workplacesystems.queuj.process;
 
+import java.io.Serializable;
+
 /**
  *
  * @author dave
  */
-public interface ProcessPersistence<E> {
+public interface ProcessPersistence<E extends ProcessEntity<K>, K extends Serializable & Comparable> {
 
     void clearInstance();
 
     E getInstance();
 
-    void setId(Object id);
+    void setId(K id);
 
     String persist();
 

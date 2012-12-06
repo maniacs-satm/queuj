@@ -18,19 +18,20 @@ package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.utilsj.Callback;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 
 /**
  *
  * @author dave
  */
-public interface ProcessServer extends com.workplacesystems.queuj.ProcessServer {
+public interface ProcessServer<K extends Serializable & Comparable> extends com.workplacesystems.queuj.ProcessServer {
     
-    public void submitProcess(ProcessWrapper process);
+    public void submitProcess(ProcessWrapper<K> process);
 
-    boolean contains(ProcessWrapper process);
+    boolean contains(ProcessWrapper<K> process);
 
-    public void delete(ProcessWrapper process);
+    public void delete(ProcessWrapper<K> process);
 
     public <T> T readLocked(Callback<T> callback);
 
@@ -38,9 +39,9 @@ public interface ProcessServer extends com.workplacesystems.queuj.ProcessServer 
 
     public ProcessScheduler getProcessScheduler();
 
-    public boolean addProcessToIndex(ProcessWrapper process);
+    public boolean addProcessToIndex(ProcessWrapper<K> process);
 
-    public boolean removeProcessFromIndex(ProcessWrapper process);
+    public boolean removeProcessFromIndex(ProcessWrapper<K> process);
 
-    public boolean scheduleOverride(ProcessWrapper process, GregorianCalendar nextRun);
+    public boolean scheduleOverride(ProcessWrapper<K> process, GregorianCalendar nextRun);
 }

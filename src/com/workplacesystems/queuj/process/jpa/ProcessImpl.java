@@ -50,7 +50,7 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="process", uniqueConstraints={@UniqueConstraint(columnNames={"queue_owner_id","process_id"})})
-public class ProcessImpl implements ProcessEntity, Serializable {
+public class ProcessImpl implements ProcessEntity<Integer>, Serializable {
 
     private Integer processId;
     private Integer OPTLOCK;
@@ -76,6 +76,8 @@ public class ProcessImpl implements ProcessEntity, Serializable {
     private int resultCode;
     private boolean associatedReport;
     private boolean keepCompleted;
+
+    private static int nextProcessId = Integer.MAX_VALUE;
 
     @Id
     @GeneratedValue
@@ -189,10 +191,20 @@ public class ProcessImpl implements ProcessEntity, Serializable {
     public void setKeepCompleted(boolean keepCompleted) { this.keepCompleted = keepCompleted; }
 
     // Entity doesn't require a reverse reference to the wrapper for JPA and Seam implementations
-    public void setProcessWrapper(ProcessWrapper processWrapper) {}
+    public void setProcessWrapper(ProcessWrapper<Integer> processWrapper) {}
 
     // Implementation options not currently required for JPA and Seam implementations
     public void setImplementationOptions(Map<String, Object> implementation_options) {}
+
+    @Transient
+    public Integer getNextProcessId() {
+        return getNextProcessId0();
+    }
+
+    @Transient
+    private static synchronized int getNextProcessId0() {
+        return nextProcessId--;
+    }
 
     // No special options required for retrieval of the server
     @Transient

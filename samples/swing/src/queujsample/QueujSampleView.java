@@ -69,7 +69,7 @@ public class QueujSampleView extends FrameView {
         DOMConfigurator.configure(getClass().getResource("/META-INF/log4j.xml"));
 
         // Init the queue
-        QueujFactory.getProcessServer((String)null);
+        QueujFactory.getProcessServer((String)null, null);
 
         initComponents();
 

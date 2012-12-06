@@ -32,17 +32,17 @@ import java.util.Map;
  *
  * @author dave
  */
-public final class Process implements Serializable, Comparable {
+public final class Process<K extends Serializable & Comparable> implements Serializable, Comparable {
 
     private String queueOwner;
 
-    private Integer processKey;
+    private K processKey;
 
     private Map<String,Object> server_options;
 
-    private transient ProcessWrapper process;
+    private transient ProcessWrapper<K> process;
 
-    public Process(ProcessWrapper process) {
+    public Process(ProcessWrapper<K> process) {
         this.process = process;
         this.queueOwner = process.getQueueOwner();
         this.processKey = process.getProcessKey();
@@ -61,7 +61,7 @@ public final class Process implements Serializable, Comparable {
         return queueOwner;
     }
 
-    public Integer getProcessKey() {
+    public K getProcessKey() {
         return processKey;
     }
 

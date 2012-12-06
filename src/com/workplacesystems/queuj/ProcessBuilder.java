@@ -16,6 +16,8 @@
 
 package com.workplacesystems.queuj;
 
+import com.workplacesystems.queuj.process.ProcessEntity;
+import com.workplacesystems.queuj.process.ProcessPersistence;
 import com.workplacesystems.queuj.process.ProcessServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.utilsj.Callback;
@@ -326,18 +328,21 @@ public class ProcessBuilder
     /**
      * Creates the Process using the parameters that have been set.
      */
-    public Process newProcess()
+    public <K extends Serializable & Comparable> Process<K> newProcess()
     {
-        Callback<ProcessWrapper> callback = new Callback<ProcessWrapper>() {
+        Callback<ProcessWrapper<K>> callback = new Callback<ProcessWrapper<K>>() {
 
             @Override
             protected void doAction() {
-                ProcessWrapper process = ProcessWrapper.getNewInstance(
+
+                ProcessWrapper<K> process = ProcessWrapper.getNewInstance(
                         partition == null ? null : partition.getQueueOwnerKey(), is_persistent, implementation_options);
-                process.setDetails(process_name, queue, process_description, user,
-                    occurrence, visibility, access, resilience, output,
-                    pre_processes, post_processes, keep_completed, locale,
-                    implementation_options);
+
+                ProcessPersistence<ProcessEntity<K>,K> processHome = 
+                        process.setDetails(process_name, queue, process_description, user,
+                                           occurrence, visibility, access, resilience, output,
+                                           pre_processes, post_processes, keep_completed, locale,
+                                           implementation_options);
 
                 if (report_type != null)
                     process.setReportType(report_type);
@@ -349,20 +354,22 @@ public class ProcessBuilder
 
                 preSubmitBatchJobProcessing();
 
+                if (is_persistent) processHome.persist();
+
                 process.getContainingServer().submitProcess(process);
 
                 _return(process);
             }
         };
 
-        QueujTransaction transaction = QueujFactory.getTransaction();
-        return new Process(transaction.doTransaction(is_persistent, callback, true));
+        QueujTransaction<K> transaction = (QueujTransaction<K>)QueujFactory.getTransaction();
+        return new Process<K>(transaction.doTransaction(is_persistent, callback, true));
     }
 
     /**
      * Allows subclasses to set their local parameters into the Process.
      */
-    protected void setupProcess(Process process) {}
+    protected <K extends Serializable & Comparable> void setupProcess(Process<K> process) {}
     
     /**
      * Allows subclasses a last chance to modify additional database information before

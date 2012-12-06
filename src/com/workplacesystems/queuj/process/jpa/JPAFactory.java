@@ -17,10 +17,12 @@
 package com.workplacesystems.queuj.process.jpa;
 
 import com.workplacesystems.queuj.ProcessServer;
+import com.workplacesystems.queuj.process.ProcessEntity;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessPersistence;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujFactory;
+import com.workplacesystems.queuj.process.QueujFactoryImpl;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.process.jpa.ProcessImpl;
 import com.workplacesystems.queuj.utils.QueujException;
@@ -38,7 +40,7 @@ import javax.persistence.Persistence;
  *
  * @author dave
  */
-public class JPAFactory extends QueujFactory {
+public class JPAFactory extends QueujFactoryImpl {
 
     private EntityManagerFactory emf;
 
@@ -86,13 +88,13 @@ public class JPAFactory extends QueujFactory {
     }
 
     @Override
-    protected QueujTransaction getTransaction0() {
-        return new QueujTransaction() {
+    protected QueujTransaction<Integer> getTransaction0() {
+        return new QueujTransaction<Integer>() {
 
             private boolean emIsLocal = false;
             private boolean transactionIsLocal = false;
 
-            public <T> T doTransaction(ProcessWrapper process, Callback<T> callback, boolean doStart) {
+            public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, boolean doStart) {
                 return doTransaction(process.isPersistent(), callback, doStart);
             }
 
@@ -160,8 +162,8 @@ public class JPAFactory extends QueujFactory {
     }
 
     @Override
-    protected ProcessPersistence getPersistence0(final String queueOwner, Map<String, Object> server_options) {
-        return new ProcessPersistence<ProcessImpl>() {
+    protected ProcessPersistence<ProcessEntity<Integer>,Integer> getPersistence0(final String queueOwner, Map<String, Object> server_options) {
+        return new ProcessPersistence<ProcessEntity<Integer>,Integer>() {
 
             private ProcessImpl instance = null;
 
@@ -175,7 +177,7 @@ public class JPAFactory extends QueujFactory {
                 return instance;
             }
 
-            public void setId(Object id) {
+            public void setId(Integer id) {
                 if (tlEm.get() == null)
                     throw new QueujException("No transaction.");
                 if (id == null)

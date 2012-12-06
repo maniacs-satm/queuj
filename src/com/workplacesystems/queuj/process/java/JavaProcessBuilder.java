@@ -21,6 +21,7 @@ import java.util.Locale;
 import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.ProcessBuilder;
 import com.workplacesystems.queuj.Queue;
+import java.io.Serializable;
 
 /**
  *
@@ -55,7 +56,7 @@ public class JavaProcessBuilder extends ProcessBuilder
     }
 
     @Override
-    protected void setupProcess(Process process)
+    protected <K extends Serializable & Comparable> void setupProcess(Process<K> process)
     {
         process.setParameter(JavaProcessServer.JAVA_PROCESS_SESSION, java_process_session);
     }

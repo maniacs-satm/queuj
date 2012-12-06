@@ -51,10 +51,8 @@ public abstract class BatchProcessServer {
         {
             parameter_value = process.getParameter(parameter_name);
             local_parameters.put(parameter_name, parameter_value);
-            return parameter_value;
         }
 
-        Serializable previous_value = process.setParameter(parameter_name, parameter_value);
         return parameter_value;
     }
 }

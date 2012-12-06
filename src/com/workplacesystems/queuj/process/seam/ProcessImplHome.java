@@ -26,6 +26,10 @@ import org.jboss.seam.framework.EntityHome;
  * @author dave
  */
 @Name("processImplHome")
-public class ProcessImplHome extends EntityHome<ProcessImpl> implements ProcessPersistence<ProcessImpl> {
+public class ProcessImplHome extends EntityHome<ProcessImpl> implements ProcessPersistence<ProcessImpl,Integer> {
 
+    @Override
+    public void setId(Integer id) {
+        super.setId(id);
+    }
 }

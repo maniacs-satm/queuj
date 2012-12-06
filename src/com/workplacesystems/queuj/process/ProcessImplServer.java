@@ -37,7 +37,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 
-public class ProcessImplServer implements ProcessServer, Serializable {
+public class ProcessImplServer<K extends Serializable & Comparable> implements ProcessServer<K>, Serializable {
 
     private final static HashMap<String,ProcessImplServer> instances = new HashMap<String, ProcessImplServer>();
 
@@ -49,7 +49,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
 
     private final String queueOwner;
 
-    private final TransactionalSortedFilterableBidiMap<Integer,ProcessWrapper> processes;
+    private final TransactionalSortedFilterableBidiMap<K,ProcessWrapper<K>> processes;
 
     private final ProcessScheduler processScheduler = new ProcessScheduler();
 
@@ -68,7 +68,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
     private ProcessImplServer(String queueOwner) {
         this.queueOwner = queueOwner;
         processes = SynchronizedTransactionalSortedFilterableBidiMap.decorate(
-                new TransactionalBidiTreeMap<Integer,ProcessWrapper>());
+                new TransactionalBidiTreeMap<K,ProcessWrapper<K>>());
         processes.setAutoCommit(false);
     }
 
@@ -76,7 +76,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return mutex;
     }
 
-    public void submitProcess(ProcessWrapper process) {
+    public void submitProcess(ProcessWrapper<K> process) {
         processes.put(process.getProcessKey(), process);
         indexes.addProcessToIndex(process);
     }
@@ -165,14 +165,14 @@ public class ProcessImplServer implements ProcessServer, Serializable {
 
     public FilterableList<Process> subList(final int fromIndex, final int toIndex) {
         final FilterableArrayList<Process> subList = new FilterableArrayList<Process>();
-        (new IterativeCallback<ProcessWrapper,Void>() {
+        (new IterativeCallback<ProcessWrapper<K>,Void>() {
 
             private int index = 0;
 
             @Override
-            protected void nextObject(ProcessWrapper obj) {
+            protected void nextObject(ProcessWrapper<K> obj) {
                 if (index >= fromIndex)
-                    subList.add(new Process(obj));
+                    subList.add(new Process<K>(obj));
                 if (++index >= toIndex)
                     _break();
             }
@@ -180,7 +180,7 @@ public class ProcessImplServer implements ProcessServer, Serializable {
         return subList;
     }
 
-    public ProcessWrapper get(Integer key) {
+    public ProcessWrapper<K> get(K key) {
         return processes.get(key);
     }
 

@@ -16,9 +16,11 @@
 
 package com.workplacesystems.queuj.process.seam;
 
+import com.workplacesystems.queuj.process.ProcessEntity;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessPersistence;
 import com.workplacesystems.queuj.process.QueujFactory;
+import com.workplacesystems.queuj.process.QueujFactoryImpl;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
 import com.workplacesystems.utilsj.Callback;
@@ -32,7 +34,7 @@ import org.jboss.seam.async.Asynchronous;
  *
  * @author dave
  */
-public class SeamFactory extends QueujFactory {
+public class SeamFactory extends QueujFactoryImpl {
 
     @Override
     protected void init() {
@@ -48,12 +50,12 @@ public class SeamFactory extends QueujFactory {
     }
 
     @Override
-    protected QueujTransaction getTransaction0() {
+    protected QueujTransaction<Integer> getTransaction0() {
         return (QueujTransaction)Component.getInstance(SeamTransaction.class, true);
     }
 
     @Override
-    protected ProcessPersistence getPersistence0(String queueOwner, Map<String, Object> server_options) {
+    protected ProcessPersistence<ProcessEntity<Integer>,Integer> getPersistence0(String queueOwner, Map<String, Object> server_options) {
         return (ProcessPersistence)Component.getInstance(ProcessImplHome.class, true);
     }
 
