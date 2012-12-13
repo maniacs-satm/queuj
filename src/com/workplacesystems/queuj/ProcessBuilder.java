@@ -330,13 +330,14 @@ public class ProcessBuilder
      */
     public <K extends Serializable & Comparable> Process<K> newProcess()
     {
+        final String queueOwner = partition == null ? null : partition.getQueueOwnerKey();
         Callback<ProcessWrapper<K>> callback = new Callback<ProcessWrapper<K>>() {
 
             @Override
             protected void doAction() {
 
                 ProcessWrapper<K> process = ProcessWrapper.getNewInstance(
-                        partition == null ? null : partition.getQueueOwnerKey(), is_persistent, implementation_options);
+                        queueOwner, is_persistent, implementation_options);
 
                 ProcessPersistence<ProcessEntity<K>,K> processHome = 
                         process.setDetails(process_name, queue, process_description, user,
@@ -363,7 +364,7 @@ public class ProcessBuilder
         };
 
         QueujTransaction<K> transaction = (QueujTransaction<K>)QueujFactory.getTransaction();
-        return new Process<K>(transaction.doTransaction(is_persistent, callback, true));
+        return new Process<K>(transaction.doTransaction(queueOwner, is_persistent, callback, true));
     }
 
     /**

@@ -35,6 +35,8 @@ public interface ProcessServer<K extends Serializable & Comparable> extends com.
 
     public <T> T readLocked(Callback<T> callback);
 
+    public <T> T writeLocked(Callback<T> callback);
+
     public Object getMutex();
 
     public ProcessScheduler getProcessScheduler();

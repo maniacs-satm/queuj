@@ -86,7 +86,7 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
     }
 
     public void init() {
-        withWriteLock(new Callback<Void>() {
+        writeLocked(new Callback<Void>() {
 
             @Override
             protected void doAction() {
@@ -188,7 +188,7 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
         return SyncUtils.synchronizeRead(processes, callback);
     }
 
-    <T> T withWriteLock(Callback<T> callback) {
+    public <T> T writeLocked(Callback<T> callback) {
         return SyncUtils.synchronizeWrite(processes, callback);
     }
 

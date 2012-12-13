@@ -30,10 +30,10 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
         return new QueujTransaction<Integer>() {
 
             public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, boolean doStart) {
-                return doTransaction(process.isPersistent(), callback, doStart);
+                return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, doStart);
             }
 
-            public <T> T doTransaction(boolean persistent, Callback<T> callback, boolean doStart) {
+            public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
                 if (persistent)
                     throw new QueujException("No persistence has been enabled.");
 

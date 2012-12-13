@@ -51,8 +51,14 @@ public abstract class BatchProcessServer {
         {
             parameter_value = process.getParameter(parameter_name);
             local_parameters.put(parameter_name, parameter_value);
+            return parameter_value;
         }
 
+        /**
+         * When getting a mutable parameter for use set it back into the process
+         * immediately so any changes are persisted.
+         */
+        Serializable previous_value = process.setParameter(parameter_name, parameter_value);
         return parameter_value;
     }
 }

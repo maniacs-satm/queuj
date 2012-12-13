@@ -66,11 +66,11 @@ public class SeamTransaction implements QueujTransaction<Integer> {
 
     @Transactional(TransactionPropagationType.REQUIRED)
     public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, boolean doStart) {
-        return doTransaction(process.isPersistent(), callback, doStart);
+        return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, doStart);
     }
 
     @Transactional(TransactionPropagationType.REQUIRED)
-    public <T> T doTransaction(boolean persistent, Callback<T> callback, boolean doStart) {
+    public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
         TransactionContext context = transactionContext.get();
         if (context.obsolete) {
             transactionContext.remove();

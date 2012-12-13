@@ -158,6 +158,10 @@ public abstract class BackgroundProcess implements Runnable
         return parent_process;
     }
 
+    protected final Callback getAsync() {
+        return async;
+    }
+
     protected final void setName(String name)
     {
         this.name = name;

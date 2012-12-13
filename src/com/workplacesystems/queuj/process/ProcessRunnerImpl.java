@@ -49,6 +49,7 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
         this.process = process;
         this.runTime = runTime;
         this.failed = failed;
+        initialise();
     }
 
     protected final ProcessWrapper getProcess() {
@@ -94,79 +95,89 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
     }
 
     boolean unPark(Collection<ProcessRunner> next_runners) {
-        if (used)
-            return false;
+        try {
+            initialiseUnpark();
 
-        if (!parked) {
-            new QueujException("Can't unPark a runner that is not parked?!?! ProcessId: "  + process.getProcessKey());
-            return false;
-        }
+            if (used)
+                return false;
 
-        if (interrupted) {
-            // Get another thread to deal with this if next_runners != null
-            if (next_runners != null) {
-                doNotify();
+            if (!parked) {
+                new QueujException("Can't unPark a runner that is not parked?!?! ProcessId: "  + process.getProcessKey());
                 return false;
             }
 
-            log.debug("Runner interrupted in unPark(): " + hashCode());
-            process.getContainingServer().getProcessScheduler().unScheduleProcess(process);
-            doFinally();
-        }
-        else {
-            if (!process.isNotRun() && !process.isFailed() && !process.isDeleted()) {
-                try {
-                    attemptProcessPessimisticLock();
-                    if (!process.isDeleted()) // Double check
-                        process.updateNotRun();
+            if (interrupted) {
+                // Get another thread to deal with this if next_runners != null
+                if (next_runners != null) {
+                    doNotify();
+                    return false;
                 }
-                catch (Exception e) {} // Ignore
-                finally {
-                    releaseProcessPessimisticLock();
-                }
-            }
 
-            try {
-                preStart();
-
-                ProcessServer ps = process.getContainingServer();
-                synchronized (ps.getMutex()) {
-                    log.debug("Checking unpark for runner: " + hashCode());
-                    boolean can_unpark = canRunProcess();
-                    boolean pending_delete = process.isDeleted();
-
-                    if (can_unpark || pending_delete) {
-                        log.debug("UnParking runner (pending_delete==" + (pending_delete ? "true" : "false") + "): " + hashCode());
-                        ps.getProcessScheduler().unScheduleProcess(process);
-                        if (!pending_delete) {
-                            used = true;
-                            if (next_runners == null)
-                                start();
-                            else
-                                next_runners.add(this);
-
-                            return true;
-                        }
-                        else {
-                            interrupted = false;
-                            doFinally();
-                        }
-                    }
-                    else {
-                        if (!process.isNotRun() && !process.isFailed()) // Because we couldn't get the lock
-                            doNotify();
-                    }
-                }
-            }
-            catch (Exception e) {
-                new QueujException(e);
+                log.debug("Runner interrupted in unPark(): " + hashCode());
+                process.getContainingServer().getProcessScheduler().unScheduleProcess(process);
                 doFinally();
             }
+            else {
+                if (!process.isNotRun() && !process.isFailed() && !process.isDeleted()) {
+                    try {
+                        attemptProcessPessimisticLock();
+                        if (!process.isDeleted()) // Double check
+                            process.updateNotRun();
+                    }
+                    catch (Exception e) {} // Ignore
+                    finally {
+                        releaseProcessPessimisticLock();
+                    }
+                }
+
+                try {
+                    preStart();
+
+                    ProcessServer ps = process.getContainingServer();
+                    synchronized (ps.getMutex()) {
+                        log.debug("Checking unpark for runner: " + hashCode());
+                        boolean can_unpark = canRunProcess();
+                        boolean pending_delete = process.isDeleted();
+
+                        if (can_unpark || pending_delete) {
+                            log.debug("UnParking runner (pending_delete==" + (pending_delete ? "true" : "false") + "): " + hashCode());
+                            ps.getProcessScheduler().unScheduleProcess(process);
+                            if (!pending_delete) {
+                                used = true;
+                                if (next_runners == null)
+                                    start();
+                                else
+                                    next_runners.add(this);
+
+                                return true;
+                            }
+                            else {
+                                interrupted = false;
+                                doFinally();
+                            }
+                        }
+                        else {
+                            if (!process.isNotRun() && !process.isFailed()) // Because we couldn't get the lock
+                                doNotify();
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    new QueujException(e);
+                    doFinally();
+                }
+            }
+            return false;
         }
-        return false;
+        finally {
+            finaliseUnpark();
+        }
     }
 
     protected void initialise() {}
+    protected void initialiseRun() {}
+    protected void initialiseUnpark() {}
+    protected void finaliseUnpark() {}
     protected void waitForProcessPessimisticLock() {}
     protected void waitForProcessExclusivePessimisticLock() {}
     protected void waitForOtherPessimisticLocks() {}
@@ -191,7 +202,7 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
     protected void doRun() {
         log.debug("Starting runner: " + hashCode());
 
-        initialise();
+        initialiseRun();
 
         // Firstly take a local copy of the parked status for use in if statements
         boolean local_parked = parked;
@@ -250,10 +261,14 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
                             // if failed, leave in queue (so can be displayed) but suspend the controller
                             if (nextRun == null && !process.keepCompleted()) {
                                 waitForProcessExclusivePessimisticLock();
-                                synchronized (ProcessRunnerImpl.this)
-                                {
-                                    process.delete();
-                                }
+                                process.getContainingServer().writeLocked(new Callback() {
+                                    @Override
+                                    protected void doAction() {
+                                        synchronized (ProcessRunnerImpl.this) {
+                                            process.delete();
+                                        }
+                                    }
+                                });
                             }
                         }
                     }, false);
