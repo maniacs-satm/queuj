@@ -29,6 +29,7 @@ import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.java.JavaProcessBuilder;
 import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
+import com.workplacesystems.queuj.test.QueuJPerfTest;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.utilsj.collections.helpers.HasLessThan;
 import java.util.List;
@@ -201,7 +202,7 @@ public class QueujSampleView extends FrameView {
             System.out.println("Finished waiting for " + processes.size() + " jobs");
 
             if (failed_process)
-                throw new QueujException("GuildScanRunner failed.");
+                throw new QueujException("Runner failed.");
         }
     }
 
@@ -470,21 +471,15 @@ public class QueujSampleView extends FrameView {
         pb.setProcessName("Test 5");
         pb.setProcessDescription("Test 5");
         Test2Runner runner = new Test2Runner();
-        pb.setProcessDetails(runner, "run", new Class[] {Integer.TYPE}, new Object[] {new Integer(1)});
+        pb.setProcessDetails(runner, "run", new Class[] {Integer.TYPE}, new Object[] {(Integer)jSpinner1.getValue()});
         pb.addProcessSection(runner, "waitForProcess", new Class[] {}, new Object[] {});
         pb.setProcessPersistence(true);
         pb.newProcess();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        JavaProcessBuilder pb = SAMPLE_QUEUE.newProcessBuilder(Locale.getDefault());
-        pb.setProcessName("Test 5");
-        pb.setProcessDescription("Test 5");
-        Test2Runner runner = new Test2Runner();
-        pb.setProcessDetails(runner, "run", new Class[] {Integer.TYPE}, new Object[] {(Integer)jSpinner1.getValue()});
-        pb.addProcessSection(runner, "waitForProcess", new Class[] {}, new Object[] {});
-        pb.setProcessPersistence(true);
-        pb.newProcess();
+        QueuJPerfTest test = new QueuJPerfTest();
+        System.out.println(test.run());
     }//GEN-LAST:event_jButton6ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
