@@ -27,9 +27,6 @@ public interface ProcessServer
 {
     public Boolean notifyQueue();
 
-    /** checks whether a process matching requirements is currently running or queued */
-    public boolean isProcessQueued (ProcessMatcher matcher);
-
     public <R> R indexesWithReadLock(final ProcessIndexesCallback<R> indexesCallback);
 
     public void registerListener(QueueListener listener);

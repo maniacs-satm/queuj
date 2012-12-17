@@ -17,7 +17,6 @@
 package com.workplacesystems.queuj.process;
 
 import com.workplacesystems.queuj.Process;
-import com.workplacesystems.queuj.ProcessMatcher;
 import com.workplacesystems.queuj.QueueListener;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
@@ -202,23 +201,6 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
 
     public boolean contains(ProcessWrapper process) {
         return processes.containsValue(process);
-    }
-
-    public boolean isProcessQueued(final ProcessMatcher matcher) {
-        return readLocked(new Callback<Boolean>() {
-
-            @Override
-            protected void doAction() {
-                _return((new IterativeCallback<ProcessWrapper,Boolean>(false) {
-
-                    @Override
-                    protected void nextObject(ProcessWrapper process) {
-                        if (matcher.matches(new Process(process)))
-                            _return(true);
-                    }
-                }).iterate(processes.valuesByValue()));
-            }
-        });
     }
 
     public boolean scheduleOverride(ProcessWrapper process, GregorianCalendar nextRun) {
