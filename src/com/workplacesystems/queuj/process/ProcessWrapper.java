@@ -781,23 +781,22 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
             {
                 try
                 {
-                    Callback seq_callback = new Callback() {
+                    if (post_process.needsTransaction()) {
+                        doTransaction(new Callback() {
 
-                        @Override
-                        protected void doAction() {
-                            ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
+                            @Override
+                            protected void doAction() {
+                                ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
 
-                            post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
+                                post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
 
-                            if (isPersistent) processHome.update();
-                            _return(ProcessWrapper.this);
-                        }
-                    };
-
-                    if (post_process.needsTransaction())
-                        doTransaction(seq_callback);
+                                if (isPersistent) processHome.update();
+                                _return(ProcessWrapper.this);
+                            }
+                        });
+                    }
                     else
-                        seq_callback.action();
+                        post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
                 }
                 catch (Exception e)
                 {
