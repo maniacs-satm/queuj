@@ -48,6 +48,7 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
     private final Map locked_processes  = Collections.synchronizedMap(new HashMap());
 
     private final static String NULL_INDEX_KEY = ".null_custom_index_key";
+    private final static String NULL_QUEUE_KEY = ".null_queue_key";
 
     public ProcessIndexesImpl() {}
 
@@ -100,31 +101,33 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
         return false;
     }
 
-    private boolean updateIndex(Map index_map, ProcessWrapper process, boolean add)
+    private boolean updateIndex(final Map index_map, ProcessWrapper process, boolean add)
     {
         boolean modified = false;
         final Queue queue = process.getQueue();
         if (queue.hasIndex())
         {
-            final Map _index_map = index_map;
-            index_map = (Map)SyncUtils.synchronizeWrite(index_map, new Callback() {
+            Map sub_index_map = (Map)SyncUtils.synchronizeWrite(index_map, new Callback() {
                 @Override
                 protected void doAction()
                 {
-                    Map custom_index_map = (Map)_index_map.get(queue.toString());
+                    Map custom_index_map = (Map)index_map.get(queue.toString());
                     if (custom_index_map == null)
                     {
                         custom_index_map = Collections.synchronizedMap(new HashMap());
-                        _index_map.put(queue.toString(), custom_index_map);
+                        index_map.put(queue.toString(), custom_index_map);
                     }
                     _return(custom_index_map);
                 }
             });
-            modified = updateIndexMap(index_map, process, add, queue.getIndexKey(new Process(process)));
-            updateIndexMap(index_map, process, add, NULL_INDEX_KEY);
+            modified = updateIndexMap(sub_index_map, process, add, queue.getIndexKey(new Process(process)));
+            updateIndexMap(sub_index_map, process, add, NULL_INDEX_KEY);
         }
         else
             modified = updateIndexMap(index_map, process, add, queue.toString());
+
+        updateIndexMap(index_map, process, add, NULL_QUEUE_KEY);
+
         return modified;
     }
 
@@ -247,6 +250,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
         return total_sizes;
     }
 
+    public int countOfNotRunProcesses()
+    {
+        return countOfNotRunProcesses(null, NULL_INDEX_KEY);
+    }
+
     public int countOfNotRunProcesses(Queue queue)
     {
         return countOfNotRunProcesses(queue, NULL_INDEX_KEY);
@@ -255,6 +263,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
     public int countOfNotRunProcesses(Queue queue, Object index)
     {
         return countOfProcesses(not_run_processes, queue, index);
+    }
+
+    public int countOfRunningProcesses()
+    {
+        return countOfRunningProcesses(null, NULL_INDEX_KEY);
     }
 
     public int countOfRunningProcesses(Queue queue)
@@ -267,6 +280,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
         return countOfProcesses(running_processes, queue, index);
     }
 
+    public int countOfWaitingToRunProcesses()
+    {
+        return countOfWaitingToRunProcesses(null, NULL_INDEX_KEY);
+    }
+
     public int countOfWaitingToRunProcesses(Queue queue)
     {
         return countOfWaitingToRunProcesses(queue, NULL_INDEX_KEY);
@@ -275,6 +293,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
     public int countOfWaitingToRunProcesses(Queue queue, Object index)
     {
         return countOfProcesses(locked_processes, queue, index);
+    }
+
+    public int countOfFailedProcesses()
+    {
+        return countOfFailedProcesses(null, NULL_INDEX_KEY);
     }
 
     public int countOfFailedProcesses(Queue queue)
@@ -294,6 +317,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
         return cic.getCount();
     }
 
+    public <R> R iterateNotRunProcesses(IterativeCallback<ProcessWrapper,R> ic)
+    {
+        return iterateNotRunProcesses(null, NULL_INDEX_KEY, ic);
+    }
+
     public <R> R iterateNotRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateNotRunProcesses(queue, NULL_INDEX_KEY, ic);
@@ -302,6 +330,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
     public <R> R iterateNotRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(not_run_processes, queue, key, ic);
+    }
+
+    public <R> R iterateRunningProcesses(IterativeCallback<ProcessWrapper,R> ic)
+    {
+        return iterateRunningProcesses(null, NULL_INDEX_KEY, ic);
     }
 
     public <R> R iterateRunningProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
@@ -314,6 +347,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
         return iterateProcessIndexes(running_processes, queue, key, ic);
     }
 
+    public <R> R iterateWaitingToRunProcesses(IterativeCallback<ProcessWrapper,R> ic)
+    {
+        return iterateWaitingToRunProcesses(null, NULL_INDEX_KEY, ic);
+    }
+
     public <R> R iterateWaitingToRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateWaitingToRunProcesses(queue, NULL_INDEX_KEY, ic);
@@ -322,6 +360,11 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
     public <R> R iterateWaitingToRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
         return iterateProcessIndexes(locked_processes, queue, key, ic);
+    }
+
+    public <R> R iterateFailedProcesses(IterativeCallback<ProcessWrapper,R> ic)
+    {
+        return iterateFailedProcesses(null, NULL_INDEX_KEY, ic);
     }
 
     public <R> R iterateFailedProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic)
@@ -336,10 +379,13 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
 
     private <R> R iterateProcessIndexes(Map index_map, Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic)
     {
-        Map queue_index_map = (Map)index_map.get(queue.toString());
+        String queue_key = NULL_QUEUE_KEY;
+        if (queue != null)
+            queue_key = queue.toString();
+        Map queue_index_map = (Map)index_map.get(queue_key);
         if (queue_index_map != null)
         {
-            if (queue.hasIndex())
+            if (queue != null && queue.hasIndex())
                 queue_index_map = (Map)queue_index_map.get(key);
             if (queue_index_map != null)
                 return ic.iterate((FilterableCollection)queue_index_map.values());

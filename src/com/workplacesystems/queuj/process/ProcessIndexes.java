@@ -25,33 +25,49 @@ import com.workplacesystems.utilsj.collections.IterativeCallback;
  */
 public interface ProcessIndexes {
 
+    public int countOfNotRunProcesses();
+
     public int countOfNotRunProcesses(Queue queue);
 
     public int countOfNotRunProcesses(Queue queue, Object index);
+
+    public int countOfRunningProcesses();
 
     public int countOfRunningProcesses(Queue queue);
 
     public int countOfRunningProcesses(Queue queue, Object index);
 
+    public int countOfWaitingToRunProcesses();
+
     public int countOfWaitingToRunProcesses(Queue queue);
 
     public int countOfWaitingToRunProcesses(Queue queue, Object index);
+
+    public int countOfFailedProcesses();
 
     public int countOfFailedProcesses(Queue queue);
 
     public int countOfFailedProcesses(Queue queue, Object index);
 
+    public <R> R iterateNotRunProcesses(IterativeCallback<ProcessWrapper,R> ic);
+
     public <R> R iterateNotRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic);
 
     public <R> R iterateNotRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic);
+
+    public <R> R iterateRunningProcesses(IterativeCallback<ProcessWrapper,R> ic);
 
     public <R> R iterateRunningProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic);
 
     public <R> R iterateRunningProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic);
 
+    public <R> R iterateWaitingToRunProcesses(IterativeCallback<ProcessWrapper,R> ic);
+
     public <R> R iterateWaitingToRunProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic);
 
     public <R> R iterateWaitingToRunProcesses(Queue queue, Object key, IterativeCallback<ProcessWrapper,R> ic);
+
+    public <R> R iterateFailedProcesses(IterativeCallback<ProcessWrapper,R> ic);
 
     public <R> R iterateFailedProcesses(Queue queue, IterativeCallback<ProcessWrapper,R> ic);
 
