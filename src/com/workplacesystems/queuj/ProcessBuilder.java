@@ -137,7 +137,7 @@ public class ProcessBuilder
         setProcessAccess(queue.getDefaultAccess());
         setProcessResilience(queue.getDefaultResilience());
         setProcessOutput(queue.getDefaultOutput());
-        QueujFactory.setDefaultImplOptions(implementation_options);
+        QueujFactory.setDefaultImplOptions(this, implementation_options);
         implementation_options.putAll(queue.getImplementationOptions());
     }
 

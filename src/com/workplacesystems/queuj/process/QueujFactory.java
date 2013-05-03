@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj.process;
 
+import com.workplacesystems.queuj.ProcessBuilder;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Version;
 import com.workplacesystems.queuj.process.jpa.ProcessDAO;
@@ -73,8 +74,8 @@ public abstract class QueujFactory<K extends Serializable & Comparable> {
 
     protected QueujFactory() {}
 
-    public static final void setDefaultImplOptions(Map<String, Object> implementation_options) {
-        instance.setDefaultImplOptions0(implementation_options);
+    public static final void setDefaultImplOptions(ProcessBuilder processBuilder, Map<String, Object> implementation_options) {
+        instance.setDefaultImplOptions0(processBuilder, implementation_options);
     }
 
     public static final ProcessServer<?> getProcessServer(QueueOwner queueOwner, Map<String, Object> server_options) {
@@ -110,7 +111,7 @@ public abstract class QueujFactory<K extends Serializable & Comparable> {
     }
     protected abstract void init();
 
-    protected abstract void setDefaultImplOptions0(Map<String, Object> implementation_options);
+    protected abstract void setDefaultImplOptions0(ProcessBuilder processBuilder, Map<String, Object> implementation_options);
 
     protected abstract ProcessServer<K> getProcessServer0(String queueOwner, Map<String, Object> server_options);
 

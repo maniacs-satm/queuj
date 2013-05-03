@@ -58,17 +58,17 @@ public class JavaProcessRunner implements Serializable
         java_process_session.zapSavedValues();
     }
 
-    public final Serializable putValue(String key, Serializable o)
+    public Object putValue(String key, Serializable o)
     {
         return java_process_session.putValue(key, o);
     }
 
-    public final Serializable removeValue(String key)
+    public Object removeValue(String key)
     {
         return java_process_session.removeValue(key);
     }
 
-    public final Serializable getValue(String key)
+    public Object getValue(String key)
     {
         return java_process_session.getValue(key);
     }

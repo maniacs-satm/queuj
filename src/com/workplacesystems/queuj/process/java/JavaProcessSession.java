@@ -31,7 +31,7 @@ import java.util.UUID;
 public final class JavaProcessSession<S extends ProcessSection> implements Serializable
 {
     // Increase the number when an incompatible change is made
-    private static final long serialVersionUID = JavaProcessSession.class.getName().hashCode() + 1;
+    private static final long serialVersionUID = -2093320559L;
 
     private FilterableArrayList<S> sections = new FilterableArrayList();
     private int current_section = 0;
