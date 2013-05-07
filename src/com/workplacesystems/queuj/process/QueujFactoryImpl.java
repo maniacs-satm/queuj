@@ -35,6 +35,10 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
             }
 
             public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
+                return doTransaction(queueOwner, persistent, callback, null, doStart);
+            }
+
+            public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, Callback<Void> commitCallback, boolean doStart) {
                 if (persistent)
                     throw new QueujException("No persistence has been enabled.");
 
@@ -43,12 +47,21 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
                 if (result instanceof ProcessWrapper) {
                     ProcessWrapper process = (ProcessWrapper)result;
                     ((ProcessImplServer)process.getContainingServer()).commit();
-                    if (doStart) {
-                        if (process.rescheduleRequired(false))
-                            process.interruptRunner();
-                        else
-                            process.start();
-                    }
+                }
+
+                try {
+                    commitCallback.action();
+                }
+                catch (Exception e) {
+                    new QueujException(e);
+                }
+
+                if (result instanceof ProcessWrapper && doStart) {
+                    ProcessWrapper process = (ProcessWrapper)result;
+                    if (process.rescheduleRequired(false))
+                        process.interruptRunner();
+                    else
+                        process.start();
                 }
 
                 return result;

@@ -56,9 +56,9 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
 
     private boolean isPersistent;
 
-    private boolean deleted = false;
+    private volatile boolean deleted = false;
 
-    private boolean rescheduleRequired;
+    private volatile boolean rescheduleRequired;
 
     private ProcessWrapper(String queueOwner, ProcessEntity<K> process, boolean isPersistent) {
         this.queueOwner = queueOwner;
@@ -379,17 +379,22 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     //-------------------------------------------- Update job details/status --------------------------------------------
 
     public void updateOccurrence(final Occurrence occurrence) {
-        doTransaction(new Callback() {
+        doTransaction(new Callback<Void>() {
 
             @Override
             protected void doAction() {
                 process.setOccurrence(occurrence);
                 process.setRunCount(0);
                 process.setAttempt(0);
-                rescheduleRequired = true;
                 process.setScheduledTimestamp((new GregorianCalendar()).getTime());
                 process.setStatus(Status.NOT_RUN);
                 process.setResultCode(0);
+            }
+        }, new Callback<Void>() {
+
+            @Override
+            protected void doAction() {
+                rescheduleRequired = true;
             }
         });
     }
@@ -552,8 +557,13 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                 log.debug("ProcessWrapper.delete called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                 if (isPersistent) processHome.remove();
                 getContainingServer().delete(ProcessWrapper.this);
-                deleted = true;
                 _return(ProcessWrapper.this);
+            }
+        }, new Callback<Void>() {
+
+            @Override
+            protected void doAction() {
+                deleted = true;
             }
         });
 
@@ -656,7 +666,11 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         return false;
     }
 
-    private void doTransaction(Callback callback) {
+    private void doTransaction(Callback<Void> callback) {
+        doTransaction(callback, null);
+    }
+
+    private void doTransaction(Callback<Void> callback, Callback<Void> commitCallback) {
         try {
             QueujTransaction transaction = QueujFactory.getTransaction();
             transaction.doTransaction(this, callback, false);

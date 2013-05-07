@@ -62,6 +62,14 @@ public class JPAFactory extends QueujFactoryImpl {
         }
     };
 
+    private final ThreadLocal<ArrayList<Callback<Void>>> tlCommitCallbacks = new ThreadLocal<ArrayList<Callback<Void>>>() {
+
+        @Override
+        protected ArrayList<Callback<Void>> initialValue() {
+            return new FilterableArrayList<Callback<Void>>();
+        }
+    };
+
     public JPAFactory() {}
 
     @Override
@@ -99,6 +107,10 @@ public class JPAFactory extends QueujFactoryImpl {
             }
 
             public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
+                return doTransaction(queueOwner, persistent, callback, null, doStart);
+            }
+
+            public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, Callback<Void> commitCallback, boolean doStart) {
                 boolean committed = false;
                 try {
                     if (tlEm.get() == null) {
@@ -117,6 +129,8 @@ public class JPAFactory extends QueujFactoryImpl {
                         if (doStart)
                             tlStartProcesses.get().add((ProcessWrapper)result);
                     }
+                    if (commitCallback != null)
+                        tlCommitCallbacks.get().add(commitCallback);
 
                     if (transactionIsLocal) {
                         tlEm.get().getTransaction().commit();
@@ -130,8 +144,21 @@ public class JPAFactory extends QueujFactoryImpl {
                         for (ProcessServer ps : processServers)
                             ((ProcessImplServer)ps).commit();
 
-                        for (ProcessWrapper process : tlStartProcesses.get())
-                            process.start();
+                        for (Callback<Void> commitCallback0 : tlCommitCallbacks.get()) {
+                            try {
+                                commitCallback0.action();
+                            }
+                            catch (Exception e) {
+                                new QueujException(e);
+                            }
+                        }
+
+                        for (ProcessWrapper process : tlStartProcesses.get()) {
+                            if (process.rescheduleRequired(false))
+                                process.interruptRunner();
+                            else
+                                process.start();
+                        }
 
                         committed = true;
                     }
@@ -153,6 +180,7 @@ public class JPAFactory extends QueujFactoryImpl {
 
                         tlProcesses.remove();
                         tlStartProcesses.remove();
+                        tlCommitCallbacks.remove();
                     }
                     if (emIsLocal)
                         tlEm.remove();

@@ -20,6 +20,7 @@ import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.QueujTransaction;
+import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.utilsj.collections.FilterableArrayList;
 import java.util.ArrayList;
@@ -71,6 +72,11 @@ public class SeamTransaction implements QueujTransaction<Integer> {
 
     @Transactional(TransactionPropagationType.REQUIRED)
     public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
+        return doTransaction(queueOwner, persistent, callback, null, doStart);
+    }
+
+    @Transactional(TransactionPropagationType.REQUIRED)
+    public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, Callback<Void> commitCallback, boolean doStart) {
         TransactionContext context = transactionContext.get();
         if (context.obsolete) {
             transactionContext.remove();
@@ -91,6 +97,8 @@ public class SeamTransaction implements QueujTransaction<Integer> {
             if  (doStart)
                 context.startProcesses.add((ProcessWrapper<Integer>)result);
         }
+        if (commitCallback != null)
+            context.commitCallbacks.add(commitCallback);
         return result;
     }
 
@@ -109,6 +117,15 @@ public class SeamTransaction implements QueujTransaction<Integer> {
         }
         for (ProcessServer ps : processServers)
             ((ProcessImplServer)ps).commit();
+
+        for (Callback<Void> commitCallback : context.commitCallbacks) {
+            try {
+                commitCallback.action();
+            }
+            catch (Exception e) {
+                new QueujException(e);
+            }
+        }
 
         for (ProcessWrapper process : context.startProcesses) {
             if (process.rescheduleRequired(false))
@@ -149,5 +166,6 @@ public class SeamTransaction implements QueujTransaction<Integer> {
         private boolean callbacksSet = false;
         private ArrayList<ProcessWrapper<Integer>> processes = new ArrayList<ProcessWrapper<Integer>>();
         private ArrayList<ProcessWrapper<Integer>> startProcesses = new ArrayList<ProcessWrapper<Integer>>();
+        private ArrayList<Callback<Void>> commitCallbacks = new ArrayList<Callback<Void>>();
     }
 }
