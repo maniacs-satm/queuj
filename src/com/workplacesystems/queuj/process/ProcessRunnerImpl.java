@@ -164,7 +164,14 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
                 }
                 catch (Exception e) {
                     new QueujException(e);
-                    doFinally();
+                    try {
+                        process.getContainingServer().getProcessScheduler().unScheduleProcess(process);
+                        process.updateRunError();
+                        nextRun = process.getNextRunTime();
+                    }
+                    finally {
+                        doFinally();
+                    }
                 }
             }
             return false;

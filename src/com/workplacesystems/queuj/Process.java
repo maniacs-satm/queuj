@@ -65,6 +65,10 @@ public final class Process<K extends Serializable & Comparable> implements Seria
         return processKey;
     }
 
+    public int getAttempt() {
+        return getProcess().getAttempt();
+    }
+
     public ProcessEntity getProcessEntity() {
         return getProcess().getProcessEntity();
     }

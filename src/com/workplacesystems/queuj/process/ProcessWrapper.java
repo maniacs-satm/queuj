@@ -304,6 +304,10 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         return process.getVersion();
     }
 
+    public int getAttempt() {
+        return process.getAttempt();
+    }
+
     boolean keepCompleted() {
         return process.isKeepCompleted();
     }
@@ -655,7 +659,12 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
 
     boolean unPark(FilterableArrayList local_next_runners) {
         ProcessRunner _processRunner = processRunner;
-        if (_processRunner != null) {
+        if (_processRunner == null) {
+            getContainingServer().getProcessScheduler().unScheduleProcess(this);
+            updateRunError();
+            start();
+        }
+        else {
             if (!(_processRunner instanceof ProcessRunnerImpl))
             {
                 new QueujException("Process runner is not instance of ProcessRunnerImpl. key=" + getProcessKey());
@@ -864,7 +873,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     ProcessRunner processRunner = null;
 
     int runnerHashCode() {
-        return processRunner.hashCode(); // Throws NPE if not yet running
+        return processRunner != null ? processRunner.hashCode() : -1;
     }
 
     public void attach() {
