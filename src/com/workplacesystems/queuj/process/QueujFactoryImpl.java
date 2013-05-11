@@ -49,11 +49,13 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
                     ((ProcessImplServer)process.getContainingServer()).commit();
                 }
 
-                try {
-                    commitCallback.action();
-                }
-                catch (Exception e) {
-                    new QueujException(e);
+                if (commitCallback != null) {
+                    try {
+                        commitCallback.action();
+                    }
+                    catch (Exception e) {
+                        new QueujException(e);
+                    }
                 }
 
                 if (result instanceof ProcessWrapper && doStart) {
