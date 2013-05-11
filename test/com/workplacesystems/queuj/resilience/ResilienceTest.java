@@ -108,6 +108,7 @@ public class ResilienceTest extends TestCase {
         when2.set(GregorianCalendar.MINUTE, 30);
         when2.set(GregorianCalendar.SECOND, 0);
         when2.set(GregorianCalendar.MILLISECOND, 0);
+        when2.set(GregorianCalendar.YEAR, now.get(GregorianCalendar.YEAR));
         when2.set(GregorianCalendar.WEEK_OF_YEAR, now.get(GregorianCalendar.WEEK_OF_YEAR));
         if (when2.after(now))
             when2.add(GregorianCalendar.WEEK_OF_YEAR, -1);
@@ -149,8 +150,6 @@ public class ResilienceTest extends TestCase {
 
         GregorianCalendar when = cu.getNextRunTime(runOnce, false, 0, scheduleStart, 0);
         GregorianCalendar when2 = (GregorianCalendar)scheduleStart.clone();
-        when2.set(GregorianCalendar.WEEK_OF_YEAR, now.get(GregorianCalendar.WEEK_OF_YEAR));
-        when2.set(GregorianCalendar.YEAR, now.get(GregorianCalendar.YEAR));
         assertTrue(when.equals(when2));
 
         when = cu.getNextRunTime(runOnce, true, 1, scheduleStart, 0);
@@ -260,6 +259,7 @@ public class ResilienceTest extends TestCase {
         when2.set(GregorianCalendar.MINUTE, 30);
         when2.set(GregorianCalendar.SECOND, 0);
         when2.set(GregorianCalendar.MILLISECOND, 0);
+        when2.set(GregorianCalendar.YEAR, now.get(GregorianCalendar.YEAR));
         when2.set(GregorianCalendar.WEEK_OF_YEAR, now.get(GregorianCalendar.WEEK_OF_YEAR));
         if (when2.before(now))
             when2.add(GregorianCalendar.WEEK_OF_YEAR, 1);
