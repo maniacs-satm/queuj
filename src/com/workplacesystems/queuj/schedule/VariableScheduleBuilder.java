@@ -25,7 +25,7 @@ import com.workplacesystems.queuj.utils.QueujException;
  */
 public class VariableScheduleBuilder extends ScheduleBuilder
 {
-    private Class<VariableSchedule> schedule_class;
+    private Class<? extends VariableSchedule> schedule_class;
 
     /** Creates a new instance of VariableScheduleBuilder */
     VariableScheduleBuilder(ScheduleSetter schedule_setter)
@@ -33,7 +33,7 @@ public class VariableScheduleBuilder extends ScheduleBuilder
         super(schedule_setter);
     }
 
-    public void setVariableSchedule(Class<VariableSchedule> schedule_class)
+    public void setVariableSchedule(Class<? extends VariableSchedule> schedule_class)
     {
         this.schedule_class = schedule_class;
     }

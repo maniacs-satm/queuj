@@ -135,6 +135,10 @@ public final class Process<K extends Serializable & Comparable> implements Seria
         getProcess().updateOccurrence(occurrence);
     }
 
+    public void startNow() {
+        getProcess().startNow();
+    }
+
     public boolean restart(User user, QueueOwner activeQueueOwner) {
         return getProcess().restart(user, activeQueueOwner);
     }

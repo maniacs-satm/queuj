@@ -383,7 +383,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     //-------------------------------------------- Update job details/status --------------------------------------------
 
     public void updateOccurrence(final Occurrence occurrence) {
-        doTransaction(new Callback<Void>() {
+        doTransaction(new Callback<ProcessWrapper<K>>() {
 
             @Override
             protected void doAction() {
@@ -393,6 +393,8 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                 process.setScheduledTimestamp((new GregorianCalendar()).getTime());
                 process.setStatus(Status.NOT_RUN);
                 process.setResultCode(0);
+
+                _return(ProcessWrapper.this);
             }
         }, new Callback<Void>() {
 
@@ -400,7 +402,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
             protected void doAction() {
                 rescheduleRequired = true;
             }
-        });
+        }, true);
     }
 
     void updateRunErrorAndRestart() {
@@ -680,9 +682,13 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     }
 
     private void doTransaction(Callback<Void> callback, Callback<Void> commitCallback) {
+        doTransaction(callback, commitCallback, false);
+    }
+
+    private void doTransaction(Callback<?> callback, Callback<Void> commitCallback, boolean doStart) {
         try {
             QueujTransaction transaction = QueujFactory.getTransaction();
-            transaction.doTransaction(this, callback, false);
+            transaction.doTransaction(this, callback, doStart);
         }
         catch (ForceRollbackException fre) {} // Catch ForceRollbackException and swallow
     }
