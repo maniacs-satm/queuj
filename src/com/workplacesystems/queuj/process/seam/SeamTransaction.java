@@ -19,6 +19,7 @@ package com.workplacesystems.queuj.process.seam;
 import com.workplacesystems.queuj.ProcessServer;
 import com.workplacesystems.queuj.process.ProcessImplServer;
 import com.workplacesystems.queuj.process.ProcessWrapper;
+import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.QueujTransaction;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.utilsj.Callback;
@@ -103,7 +104,7 @@ public class SeamTransaction implements QueujTransaction<Integer> {
     }
 
     @Observer("processTransactionSuccess")
-    public void transactionSuccess(TransactionContext context) {
+    public void transactionSuccess(final TransactionContext context) {
         if (context.obsolete)
             return;
         context.obsolete = true;
@@ -127,12 +128,23 @@ public class SeamTransaction implements QueujTransaction<Integer> {
             }
         }
 
-        for (ProcessWrapper process : context.startProcesses) {
-            if (process.rescheduleRequired(false))
-                process.interruptRunner();
-            else
-                process.start();
-        }
+        final Callback<Void> async = QueujFactory.getAsyncCallback(new Callback<Void>() {
+            @Override
+            protected void doAction() {
+                for (final ProcessWrapper process : context.startProcesses) {
+                    if (process.rescheduleRequired(false))
+                        process.interruptRunner();
+                    else
+                        process.start();
+                }
+            }
+        });
+
+        (new Thread(new Runnable() {
+            public void run() {
+                async.action();
+            }
+        })).start();
 
         EntityManager em = (EntityManager)Component.getInstance("entityManager");
         em.clear();
