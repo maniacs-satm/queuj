@@ -131,7 +131,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         process.setDescription(process_description);
         if (user != null)
             process.setUserId(user.getUserId());
-        updateOccurrence(occurrence);
+        updateOccurrence(occurrence, false);
         rescheduleRequired = false;
         process.setVisibility(visibility);
         process.setAccess(access);
@@ -383,6 +383,10 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     //-------------------------------------------- Update job details/status --------------------------------------------
 
     public void updateOccurrence(final Occurrence occurrence) {
+        updateOccurrence(occurrence, true);
+    }
+
+    private void updateOccurrence(final Occurrence occurrence, boolean doStart) {
         doTransaction(new Callback<ProcessWrapper<K>>() {
 
             @Override
@@ -402,7 +406,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
             protected void doAction() {
                 rescheduleRequired = true;
             }
-        }, true);
+        }, doStart);
     }
 
     void updateRunErrorAndRestart() {
