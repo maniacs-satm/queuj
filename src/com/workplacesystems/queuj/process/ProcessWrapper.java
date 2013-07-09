@@ -692,7 +692,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     private void doTransaction(Callback<?> callback, Callback<Void> commitCallback, boolean doStart) {
         try {
             QueujTransaction transaction = QueujFactory.getTransaction();
-            transaction.doTransaction(this, callback, doStart);
+            transaction.doTransaction(this, callback, commitCallback, doStart);
         }
         catch (ForceRollbackException fre) {} // Catch ForceRollbackException and swallow
     }

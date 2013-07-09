@@ -27,6 +27,8 @@ public interface QueujTransaction<K extends Serializable & Comparable> {
 
     public <T> T doTransaction(ProcessWrapper<K> process, Callback<T> callback, boolean doStart);
 
+    public <T> T doTransaction(ProcessWrapper<K> process, Callback<T> callback, Callback<Void> commitCallback, boolean doStart);
+
     public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart);
 
     public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, Callback<Void> commitCallback, boolean doStart);

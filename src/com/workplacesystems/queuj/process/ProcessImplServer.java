@@ -179,6 +179,10 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
         return subList;
     }
 
+    public <R> R iterate(IterativeCallback<ProcessWrapper<K>,R> ic) {
+        return ic.iterate(processes.valuesByValue());
+    }
+
     public ProcessWrapper<K> get(K key) {
         return processes.get(key);
     }

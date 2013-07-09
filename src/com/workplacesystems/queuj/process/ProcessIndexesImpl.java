@@ -388,8 +388,8 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
             if (queue != null && queue.hasIndex())
                 queue_index_map = (Map)queue_index_map.get(key);
             if (queue_index_map != null)
-                return ic.iterate((FilterableCollection)queue_index_map.values());
+                return ic.iterate((FilterableCollection<ProcessWrapper>)queue_index_map.values());
         }
-        return ic.iterate(new FilterableArrayList());
+        return ic.iterate(new FilterableArrayList<ProcessWrapper>());
     }
 }

@@ -34,6 +34,10 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
                 return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, doStart);
             }
 
+            public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, Callback<Void> commitCallback, boolean doStart) {
+                return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, commitCallback, doStart);
+            }
+
             public <T> T doTransaction(String queueOwner, boolean persistent, Callback<T> callback, boolean doStart) {
                 return doTransaction(queueOwner, persistent, callback, null, doStart);
             }

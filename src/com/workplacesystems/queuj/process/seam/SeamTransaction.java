@@ -48,7 +48,7 @@ import org.jboss.seam.core.Events;
 @Scope(ScopeType.STATELESS)
 public class SeamTransaction implements QueujTransaction<Integer> {
 
-    private final static Log log = LogFactory.getLog(ProcessWrapper.class);
+    private final static Log log = LogFactory.getLog(SeamTransaction.class);
 
     @In
     private ThreadLocal<TransactionContext> transactionContext;
@@ -69,6 +69,11 @@ public class SeamTransaction implements QueujTransaction<Integer> {
     @Transactional(TransactionPropagationType.REQUIRED)
     public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, boolean doStart) {
         return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, doStart);
+    }
+
+    @Transactional(TransactionPropagationType.REQUIRED)
+    public <T> T doTransaction(ProcessWrapper<Integer> process, Callback<T> callback, Callback<Void> commitCallback, boolean doStart) {
+        return doTransaction(process.getQueueOwner(), process.isPersistent(), callback, commitCallback, doStart);
     }
 
     @Transactional(TransactionPropagationType.REQUIRED)

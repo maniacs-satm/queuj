@@ -101,6 +101,14 @@ public final class Process<K extends Serializable & Comparable> implements Seria
         return getProcess().attach(timeout);
     }
 
+    public boolean isRunning() {
+        return getProcess().isRunning();
+    }
+
+    public boolean isWaitingToRun() {
+        return getProcess().isWaitingToRun();
+    }
+
     public boolean isNotRun() {
         return getProcess().isNotRun();
     }
