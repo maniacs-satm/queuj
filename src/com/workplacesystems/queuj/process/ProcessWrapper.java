@@ -386,17 +386,20 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         updateOccurrence(occurrence, true);
     }
 
-    private void updateOccurrence(final Occurrence occurrence, boolean doStart) {
+    private void updateOccurrence(final Occurrence occurrence, final boolean doStart) {
         doTransaction(new Callback<ProcessWrapper<K>>() {
 
             @Override
             protected void doAction() {
+                ProcessPersistence<ProcessEntity<K>,K> processHome = null;
+                if (doStart) processHome = getProcessPersistence();
                 process.setOccurrence(occurrence);
                 process.setRunCount(0);
                 process.setAttempt(0);
                 process.setScheduledTimestamp((new GregorianCalendar()).getTime());
                 process.setStatus(Status.NOT_RUN);
                 process.setResultCode(0);
+                if (doStart && isPersistent) processHome.update();
 
                 _return(ProcessWrapper.this);
             }
