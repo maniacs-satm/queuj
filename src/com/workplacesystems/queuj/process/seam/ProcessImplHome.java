@@ -32,4 +32,12 @@ public class ProcessImplHome extends EntityHome<ProcessImpl> implements ProcessP
     public void setId(Integer id) {
         super.setId(id);
     }
+
+    @Override
+    protected ProcessImpl loadInstance() 
+    {
+        ProcessImpl p = super.loadInstance();
+        getEntityManager().refresh(p);
+        return p;
+    }
 }

@@ -215,6 +215,7 @@ public class JPAFactory extends QueujFactoryImpl {
                 if (id == null)
                     return;
                 instance = tlEm.get().find(ProcessImpl.class, id);
+                tlEm.get().refresh(instance);
             }
 
             public String persist() {
