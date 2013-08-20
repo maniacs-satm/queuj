@@ -60,7 +60,7 @@ public class QueuJPerfTest {
             return process.getContainingServer().indexesWithReadLock(new ProcessIndexesCallback<Boolean>() {
 
                 public Boolean readIndexes(ProcessIndexes pi) {
-                    HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(1);
+                    HasLessThan<ProcessWrapper> hasLessThen = new HasLessThan<ProcessWrapper>(4);
                     hasLessThen = pi.iterateRunningProcesses(queue, hasLessThen);
                     pi.iterateWaitingToRunProcesses(queue, hasLessThen);
                     return hasLessThen.hasLess();
@@ -101,13 +101,12 @@ public class QueuJPerfTest {
         rsb.createSchedule();
         pb.setProcessOccurrence(occurrence);
 
-        pb.setProcessDetails(new PerfRunner(), "run", new Class[] {}, new Object[] {});
-
         ArrayList<Process> processes = new ArrayList<Process>();
 
         GregorianCalendar start = new GregorianCalendar();
 
-        for (int i = 0; i<1000; i++) {
+        for (int i = 0; i<10000; i++) {
+            pb.setProcessDetails(new PerfRunner(), "run", new Class[] {}, new Object[] {});
             processes.add(pb.newProcess());
         }
 
