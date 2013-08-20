@@ -19,10 +19,14 @@ package com.workplacesystems.queuj.process;
 import com.workplacesystems.queuj.utils.BackgroundProcess;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.utilsj.Callback;
+import com.workplacesystems.utilsj.threadpool.ThreadObjectFactory;
+import com.workplacesystems.utilsj.threadpool.ThreadPoolCreator;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPool.Config;
 
 /**
  *
@@ -45,7 +49,47 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
 
     private GregorianCalendar nextRun = null;
 
+    private final static ThreadPoolCreator pool_creator = new ThreadPoolCreator() {
+        public ThreadObjectFactory getThreadObjectFactory()
+        {
+            return new ThreadObjectFactory() {
+                @Override
+                public void initialiseThread(Thread thread)
+                {
+                    thread.setName("ProcessRunnerImpl");
+                }
+
+                @Override
+                public void activateThread(Thread thread) {}
+
+                @Override
+                public void passivateThread(Thread thread) {}
+            };
+        }
+
+        @Override
+        public Config getThreadPoolConfig() {
+            Config config = new Config();
+            config.maxActive = -1; // No upper limit on the number of threads.
+            config.minIdle   = 5;  // Always have 5 threads waiting to go.
+            config.maxIdle   = 10; // Maximum number of idle threads.
+            config.testOnBorrow = false; // Don't test on borrow to improve performance........
+            config.testOnReturn = true; // But test on return instead
+            config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_GROW;
+            return config;
+        }
+
+        @Override
+        public String getThreadPoolName()
+        {
+            return "ProcessRunnerPool";
+        }
+    };
+
     protected ProcessRunnerImpl(ProcessWrapper process, GregorianCalendar runTime, boolean failed) {
+
+        super(pool_creator);
+
         this.process = process;
         this.runTime = runTime;
         this.failed = failed;
