@@ -35,6 +35,7 @@ public final class JavaProcessSession<S extends ProcessSection> implements Seria
 
     private FilterableArrayList<S> sections = new FilterableArrayList();
     private int current_section = 0;
+    private transient int rollback_section = -1;
     private S failure_section = null;
 
     // HashMap of values stored by process
@@ -89,11 +90,13 @@ public final class JavaProcessSession<S extends ProcessSection> implements Seria
         if (runner_controlled_sections) 
         {
             // assume the current run object is at least a JavaProcessRunner!
+            rollback_section = current_section;
             current_section = getCurrentSection().incrementCurrentSection(current_section);
         }
         else
         {
             // as previously 
+            rollback_section = current_section;
             current_section++;
         }
     }
@@ -109,6 +112,17 @@ public final class JavaProcessSession<S extends ProcessSection> implements Seria
     {
         current_section = 0;
         zapSavedValues();
+    }
+    public void clearRollbackSection()
+    {
+        rollback_section = -1;
+    }
+
+    public void handleRollback()
+    {
+        if (rollback_section > -1)
+            current_section = rollback_section;
+        rollback_section = -1;
     }
 
     public boolean hasFailureSection()

@@ -41,6 +41,8 @@ public abstract class BatchProcessServer {
 
     protected abstract Integer runProcess(ProcessWrapper process, boolean failureRun);
 
+    protected void handleCustomRollback(ProcessWrapper process) {}
+
     protected Serializable getParameter(ProcessWrapper process, String parameter_name)
     {
         if (local_parameters == null)

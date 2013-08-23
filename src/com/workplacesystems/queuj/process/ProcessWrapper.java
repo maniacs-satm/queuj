@@ -758,6 +758,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
             catch (Exception e)
             {
                 run_status.exception_thrown = true;
+                bps.handleCustomRollback(this);
                 new QueujException(e);
             }
             finally

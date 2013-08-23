@@ -47,6 +47,7 @@ public class JavaProcessServer extends BatchProcessServer {
         try
         {
             JavaProcessSession<JavaProcessSection> jps = getJavaProcessSession(process);
+            jps.clearRollbackSection();
 
             if (failureRun)
                 jps.getFailureSection().invokeSection(jps);
@@ -86,6 +87,12 @@ public class JavaProcessServer extends BatchProcessServer {
     protected void incrementCurrentSection(JavaProcessSession jps) {
         // by default, simple increment in JavaProcessSession
         jps.incrementCurrentSection();
+    }
+
+    @Override
+    protected void handleCustomRollback(ProcessWrapper process) {
+        JavaProcessSession jps = getJavaProcessSession(process);
+        jps.handleRollback();
     }
 
     private JavaProcessSession<JavaProcessSection> getJavaProcessSession(ProcessWrapper process) {
