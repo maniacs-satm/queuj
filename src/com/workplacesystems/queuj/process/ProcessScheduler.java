@@ -65,10 +65,12 @@ public class ProcessScheduler extends BackgroundProcess
         public ThreadObjectFactory getThreadObjectFactory()
         {
             return new ThreadObjectFactory() {
+                private volatile int count = 0;
+
                 @Override
                 public void initialiseThread(Thread thread)
                 {
-                    thread.setName("LocalProcessScheduler");
+                    thread.setName("ProcessScheduler-" + count++);
                 }
 
                 @Override

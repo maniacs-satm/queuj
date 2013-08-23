@@ -53,10 +53,12 @@ public class ProcessRunnerImpl extends BackgroundProcess implements ProcessRunne
         public ThreadObjectFactory getThreadObjectFactory()
         {
             return new ThreadObjectFactory() {
+                private volatile int count = 0;
+
                 @Override
                 public void initialiseThread(Thread thread)
                 {
-                    thread.setName("ProcessRunnerImpl");
+                    thread.setName("ProcessRunnerImpl-" + count++);
                 }
 
                 @Override
