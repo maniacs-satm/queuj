@@ -40,7 +40,8 @@ public interface ProcessEntity<K extends Serializable & Comparable> {
         RUNNING(3, "qj.enum.ProcessImplStatus.Running"),
         RESTARTED(4, "qj.enum.ProcessImplStatus.Restarted"),
         RUN_ERROR(5, "qj.enum.ProcessImplStatus.RunError"),
-        DELETED(6, "qj.enum.ProcessImplStatus.Deleted");
+        DELETED(6, "qj.enum.ProcessImplStatus.Deleted"),
+        FORCE_RUNNING(7, "qj.enum.ProcessImplStatus.ForceRunning");
 
         private final int status;
         private final String description;
