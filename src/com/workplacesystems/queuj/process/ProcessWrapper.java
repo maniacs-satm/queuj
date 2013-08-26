@@ -702,20 +702,22 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
 
     //-------------------------------------------- Running the job --------------------------------------------
 
+    static class ProcessRunStatus
+    {
+        private Integer result_code = new Integer(0);
+
+        // a result code of 0 means normal success
+        // a result code of 1 means a serious error, rollback handled here and error routine called
+        // a positive result > 1 may to for a 'controlled' error, transaction is rolled back,
+        //      but error routine NOT called (eg for validation error on imports)
+
+        private boolean exception_thrown = false;
+        private boolean run_error = false;
+        private ForceRescheduleException force_reschedule_exception = null;
+        private boolean force_complete = false;
+    }
+
     void runProcess(ProcessRunner runner, boolean previousRunFailed) {
-        class ProcessRunStatus
-        {
-            private Integer result_code = new Integer(0);
-
-            // a result code of 0 means normal success
-            // a result code of 1 means a serious error, rollback handled here and error routine called
-            // a positive result > 1 may to for a 'controlled' error, transaction is rolled back,
-            //      but error routine NOT called (eg for validation error on imports)
-
-            private boolean exception_thrown = false;
-            private boolean run_error = false;
-            private boolean force_complete = false;
-        }
         final ProcessRunStatus run_status = new ProcessRunStatus();
 
         boolean first_section = true;
@@ -730,7 +732,10 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
          * is the one that was running when the failure occurred, otherwise the first
          * sction to run is the first section.
          */
-        while (bps.hasMoreSections(this, first_section) && !run_status.run_error && !run_status.force_complete)
+        while (bps.hasMoreSections(this, first_section) &&
+                !run_status.run_error &&
+                run_status.force_reschedule_exception == null &&
+                !run_status.force_complete)
         {
             try
             {
@@ -746,8 +751,15 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                             if (!run_status.result_code.equals(BatchProcessServer.SUCCESS))
                                 throw new ForceRollbackException();
                         }
+                        catch (ForceRescheduleException fre) {
+                            handleRescheduleException(run_status, fre);
+                        }
                         catch (ForceProcessComplete fpc) {
                             run_status.force_complete = true;
+                        }
+                        catch (RuntimeException re)
+                        {
+                            checkForceReschedule(run_status, re);
                         }
 
                         if (isPersistent) processHome.update();
@@ -791,8 +803,15 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                             if (failure_result_code.intValue() != 0)
                                 throw new ForceRollbackException();
                         }
+                        catch (ForceRescheduleException fre) {
+                            handleRescheduleException(run_status, fre);
+                        }
                         catch (ForceProcessComplete fpc) {
                             throw new QueujException("Cannot force complete from a failure section.");
+                        }
+                        catch (RuntimeException re)
+                        {
+                            checkForceReschedule(run_status, re);
                         }
 
                         if (isPersistent) processHome.update();
@@ -805,6 +824,9 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                 new QueujException(e);
             }
         }
+
+        if (run_status.force_reschedule_exception != null)
+            throw run_status.force_reschedule_exception;
 
         /**
          * optional post process operations (e.g. reloading BudgetingLogs after a budgeting run)
@@ -879,6 +901,25 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         {
             new QueujException(e);
         }
+    }
+
+    private void handleRescheduleException(final ProcessRunStatus run_status, ForceRescheduleException fre) {
+        run_status.force_reschedule_exception = fre;
+        if (!fre.commitCurrentSection())
+            throw new ForceRollbackException();
+    }
+
+    private void checkForceReschedule(ProcessRunStatus run_status, RuntimeException re) {
+        Throwable t = re;
+        while (t != null && !(t instanceof ForceRescheduleProvider) && !(t instanceof ForceRescheduleException))
+            t = t.getCause();
+        
+        if (t != null && t instanceof ForceRescheduleProvider)
+            handleRescheduleException(run_status, ((ForceRescheduleProvider)t).getRescheduleException());
+        else if (t != null && t instanceof ForceRescheduleException)
+            handleRescheduleException(run_status, (ForceRescheduleException)t);
+        else
+            throw re;
     }
 
     //-------------------------------------------- Starting the job --------------------------------------------
