@@ -19,6 +19,7 @@ package com.workplacesystems.queuj.process.seam;
 import com.workplacesystems.queuj.process.BatchProcessServer;
 import com.workplacesystems.queuj.process.ForceProcessComplete;
 import com.workplacesystems.queuj.process.ForceRescheduleException;
+import com.workplacesystems.queuj.process.ProcessOutputable;
 import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.java.JavaProcessServer;
 import com.workplacesystems.queuj.process.java.JavaProcessSession;
@@ -36,11 +37,13 @@ public class SeamProcessServer extends JavaProcessServer {
         {
             JavaProcessSession<SeamProcessSection> jps = getJavaProcessSession(process);
 
+            ProcessOutputable output = process.getProcessOutputable();
+
             if (failureRun)
-                jps.getFailureSection().invokeSection(jps, process.getParameters());
+                jps.getFailureSection().invokeSection(jps, output, process.getParameters());
             else
             {
-                Integer result_code = jps.getCurrentSection().invokeSection(jps, process.getParameters());
+                Integer result_code = jps.getCurrentSection().invokeSection(jps, output, process.getParameters());
 
                 // If section completed succesfully so increment current section
                 if (result_code == null || result_code.equals(BatchProcessServer.SUCCESS))

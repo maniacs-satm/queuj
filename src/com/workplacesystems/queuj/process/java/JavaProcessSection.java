@@ -16,6 +16,8 @@
 
 package com.workplacesystems.queuj.process.java;
 
+import com.workplacesystems.queuj.process.ProcessOutputable;
+
 /**
  *
  * @author dave
@@ -35,9 +37,9 @@ public class JavaProcessSection extends ProcessSection<JavaProcessRunner,JavaPro
         return getRunObject().incrementCurrentSection(current_section);
     }
 
-    protected Integer invokeSection(JavaProcessSession session) {
+    protected Integer invokeSection(JavaProcessSession session, ProcessOutputable output) {
         // run object is a JavaProcessRunner
-        getRunObject().setDetails(session);
+        getRunObject().setDetails(session, output);
         return super.invokeSection();
     }
 }

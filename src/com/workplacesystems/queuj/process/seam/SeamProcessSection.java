@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj.process.seam;
 
+import com.workplacesystems.queuj.process.ProcessOutputable;
 import com.workplacesystems.queuj.process.ProcessParameters;
 import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.process.java.JavaProcessSession;
@@ -43,7 +44,7 @@ public class SeamProcessSection extends ProcessSection<Class,Object> {
         return Component.getInstance(run_object);
     }
 
-    protected Integer invokeSection(final JavaProcessSession session, ProcessParameters parameters) {
+    protected Integer invokeSection(final JavaProcessSession session, ProcessOutputable output, ProcessParameters parameters) {
         final Context context = Contexts.getEventContext();
         parameters.iterateValues(new IterativeCallback<Entry<String, Serializable>, Void>() {
             @Override
@@ -58,7 +59,7 @@ public class SeamProcessSection extends ProcessSection<Class,Object> {
             }
         });
         JavaProcessRunner runner = new JavaProcessRunner();
-        runner.setDetails(session);
+        runner.setDetails(session, output);
         context.set("PROCESS_RUNNER", runner);
 
         return super.invokeSection();

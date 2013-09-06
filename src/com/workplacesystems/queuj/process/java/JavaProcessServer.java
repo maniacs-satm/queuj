@@ -20,6 +20,7 @@ import com.workplacesystems.queuj.process.ProcessWrapper;
 import com.workplacesystems.queuj.process.BatchProcessServer;
 import com.workplacesystems.queuj.process.ForceProcessComplete;
 import com.workplacesystems.queuj.process.ForceRescheduleException;
+import com.workplacesystems.queuj.process.ProcessOutputable;
 import com.workplacesystems.queuj.utils.QueujException;
 
 public class JavaProcessServer extends BatchProcessServer {
@@ -49,11 +50,13 @@ public class JavaProcessServer extends BatchProcessServer {
             JavaProcessSession<JavaProcessSection> jps = getJavaProcessSession(process);
             jps.clearRollbackSection();
 
+            ProcessOutputable output = process.getProcessOutputable();
+
             if (failureRun)
-                jps.getFailureSection().invokeSection(jps);
+                jps.getFailureSection().invokeSection(jps, output);
             else
             {
-                Integer result_code = jps.getCurrentSection().invokeSection(jps);
+                Integer result_code = jps.getCurrentSection().invokeSection(jps, output);
 
                 // If section completed succesfully so increment current section
                 if (result_code == null || result_code.equals(BatchProcessServer.SUCCESS))

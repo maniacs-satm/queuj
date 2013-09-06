@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj.process.java;
 
+import com.workplacesystems.queuj.process.ProcessOutputable;
 import java.io.Serializable;
 import java.util.Locale;
 
@@ -31,6 +32,8 @@ public class JavaProcessRunner implements Serializable
 
     private transient JavaProcessSession java_process_session;
 
+    private transient ProcessOutputable output;
+    
     /** Creates a new instance of JavaProcessRunner */
     public JavaProcessRunner()
     {
@@ -42,9 +45,15 @@ public class JavaProcessRunner implements Serializable
     }
 
     // must be called with an anonymous doRun so as to implement the process...
-    public void setDetails(JavaProcessSession java_process_session)
+    public void setDetails(JavaProcessSession java_process_session, ProcessOutputable output)
     {
         this.java_process_session = java_process_session;
+        this.output = output;
+    }
+
+    protected final ProcessOutputable getProcessOutputable()
+    {
+        return output;
     }
 
     /** overridden by IntegrationRunner */
