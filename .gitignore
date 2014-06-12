@@ -2,3 +2,6 @@
 /dist/
 /build/
 /src/com/workplacesystems/queuj/Version.java
+/samples/perftest/lib/queuj/
+/samples/seam/lib/
+/samples/swing/lib/queuj/
