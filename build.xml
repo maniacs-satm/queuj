@@ -1,78 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
-<!-- By default, only the Clean and Build commands use this build script. -->
-<!-- Commands such as Run, Debug, and Test only use this build script if -->
-<!-- the Compile on Save feature is turned off for the project. -->
-<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
-<!-- in the project's Project Properties dialog box.-->
-<project name="QueuJ_(1.1.x)" default="default" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
-    <description>Builds, tests, and runs the project QueuJ (1.1.x).</description>
-    <import file="nbproject/build-impl.xml"/>
-    <!--
 
-    There exist several targets which are by default empty and which can be 
-    used for execution of your tasks. These targets are usually executed 
-    before and after some main targets. They are: 
+<project name="QueuJ" default="default" basedir=".">
+    <description>Ant tasks for QueuJ.</description>
 
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
-
-    (Targets beginning with '-' are not intended to be called on their own.)
-
-    Example of inserting an obfuscator after compilation could look like this:
-
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-        </target>
-
-    For list of available properties check the imported 
-    nbproject/build-impl.xml file. 
-
-
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are: 
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar-with-manifest:    JAR building (if you are using a manifest)
-      -do-jar-without-manifest: JAR building (if you are not using a manifest)
-      run:                      execution of project 
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="QueuJ_(1.0.x)-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-        </target>
-
-    Notice that the overridden target depends on the jar target and not only on 
-    the compile target as the regular run target does. Again, for a list of available 
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file. 
-
-    -->
-
-    <target name="-pre-init">
+    <target name="init">
         <property file="custom.properties"/>
         <condition property="do.generate.version.java">
             <and>
@@ -81,166 +12,20 @@
         </condition>
     </target>
 
-    <target name="-pre-compile" if="do.generate.version.java">
+    <target name="version.java" depends="init" if="do.generate.version.java">
         <exec executable="/bin/bash">
             <arg value="git-status.sh"/>
         </exec>
         <property file="git-status.properties"/>
         <delete file="git-status.properties"/>
-        <copy file="${src.dir}/com/workplacesystems/queuj/Version.tmpl" tofile="${src.dir}/com/workplacesystems/queuj/Version.java" overwrite="true"/>
-        <replace file="${src.dir}/com/workplacesystems/queuj/Version.java" token="@@COMMIT@@" value="${git.commit}"/>
-        <replace file="${src.dir}/com/workplacesystems/queuj/Version.java" token="@@BRANCH@@" value="${git.branch}"/>
-        <replace file="${src.dir}/com/workplacesystems/queuj/Version.java" token="@@DIRTY@@" value="${git.dirty}"/>
+        <copy file="src/main/java/com/workplacesystems/queuj/Version.tmpl" tofile="src/main/java/com/workplacesystems/queuj/Version.java" overwrite="true"/>
+        <replace file="src/main/java/com/workplacesystems/queuj/Version.java" token="@@COMMIT@@" value="${git.commit}"/>
+        <replace file="src/main/java/com/workplacesystems/queuj/Version.java" token="@@BRANCH@@" value="${git.branch}"/>
+        <replace file="src/main/java/com/workplacesystems/queuj/Version.java" token="@@DIRTY@@" value="${git.dirty}"/>
     </target>
 
-    <target name="get-version">
-        <taskdef classname="com.workplacesystems.utilsj.ant.GetVersionNumber" name="getversionnumber">
-            <classpath>
-                <pathelement location="lib/utilsj/dist/utilsj-1.1.2.jar"/>
-                <pathelement location="${build.classes.dir}"/>
-            </classpath>
-        </taskdef>
-        <getversionnumber propertyName="qj.version" propertyDescName="qj.version.desc" propertyMvnName="qj.version.mvn" versionClass="com.workplacesystems.queuj.Version"/>
+    <target name="default" depends="version.java">
     </target>
-
-    <target depends="get-version" name="-post-compile">
-    </target>
-
-    <target depends="init,-javadoc-build" name="-post-jar">
-        <move file="${dist.jar}" tofile="${dist.jar.dir}/queuj-${qj.version.desc}.jar"/>
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/swing/lib/queuj/queuj.jar"/>
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/seam/lib/queuj/queuj.jar"/>
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="samples/perftest/lib/queuj/queuj.jar"/>
-        <tar tarfile="${dist.jar.dir}/queuj.tar" longfile="gnu">
-          <tarfileset dir="." prefix="queuj-${qj.version.desc}">
-            <include name="**/*"/>
-            <exclude name="**/.svn"/>
-            <exclude name="custom.properties"/>
-            <exclude name="**/build/**"/>
-            <exclude name="dist/queuj-*.tar.gz"/>
-            <exclude name="dist/lib/**"/>
-            <exclude name="dist/mvn/**"/>
-            <exclude name="**/nbproject/private/**"/>
-            <exclude name="lib/jboss-seam/lib/**"/>
-            <exclude name="samples/**/dist/**"/>
-          </tarfileset>
-          <tarfileset dir="lib/jboss-seam/lib/" prefix="queuj-${qj.version.desc}/lib/jboss-seam/lib">
-            <!-- Seam libraries needed for compile of QueuJ-->
-            <include name="jboss-seam.jar"/>
-            <include name="hibernate-entitymanager.jar"/>
-            <include name="hibernate-validator.jar"/>
-            <include name="ejb3-persistence.jar"/>
-            <include name="jta.jar"/>
-            <!-- Seam libraries needed for samples-->
-            <include name="antlr.jar"/>
-            <include name="commons-collections.jar"/>
-            <include name="commons-logging.jar"/>
-            <include name="dom4j.jar"/>
-            <include name="ejb-api.jar"/>
-            <include name="hibernate-annotations.jar"/>
-            <include name="hibernate-commons-annotations.jar"/>
-            <include name="hibernate-core.jar"/>
-            <include name="javassist.jar"/>
-            <include name="jboss-el.jar"/>
-            <include name="jboss-seam-ui.jar"/>
-            <include name="jboss-seam.jar"/>
-            <include name="jsf-api.jar"/>
-            <include name="jsf-facelets.jar"/>
-            <include name="jsf-impl.jar"/>
-            <include name="log4j.jar"/>
-            <include name="slf4j-api.jar"/>
-            <include name="slf4j-log4j12.jar"/>
-          </tarfileset>
-        </tar>
-        <gzip src="${dist.jar.dir}/queuj.tar" zipfile="${dist.jar.dir}/queuj-${qj.version.desc}.tar.gz"/>
-        <delete file="${dist.jar.dir}/queuj.tar"/>
-    </target>
-
-    <target depends="default" name="maven-init">
-        <path id="maven-ant-tasks.classpath" path="lib/utilsj/lib/maven-ant-tasks/maven-ant-tasks-2.1.3.jar" />
-        <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
-                 uri="antlib:org.apache.maven.artifact.ant"
-                 classpathref="maven-ant-tasks.classpath" />
-
-        <condition property="do.maven-snapshot">
-            <and>
-                <contains string="${qj.version.mvn}" substring="-SNAPSHOT"/>
-            </and>
-        </condition>
-        <condition property="do.maven-stage">
-            <not>
-                <contains string="${qj.version.mvn}" substring="-SNAPSHOT"/>
-            </not>
-        </condition>
-        
-        <!-- define artifacts' name, which follows the convention of Maven -->
-        <property name="maven-jar" value="dist/mvn/queuj-${qj.version.mvn}.jar" />
-        <property name="maven-javadoc-jar" value="dist/mvn/queuj-${qj.version.mvn}-javadoc.jar" />
-        <property name="maven-sources-jar" value="dist/mvn/queuj-${qj.version.mvn}-sources.jar" />
-
-        <mkdir dir="dist/mvn"/>
-
-        <copy file="${dist.jar.dir}/queuj-${qj.version.desc}.jar" tofile="${maven-jar}"/>
-        <jar jarfile="${maven-javadoc-jar}">
-			<fileset dir="dist/javadoc"/>
-        </jar>
-		<jar jarfile="${maven-sources-jar}">
-			<fileset dir="${src.dir}"/>
-		</jar>
-        <copy file="pom.tmpl" tofile="pom.xml" overwrite="true"/>
-        <replace file="pom.xml" token="@@VERSION@@" value="${qj.version.mvn}"/>
-    </target>
-
-    <target depends="maven-init" name="maven-snapshot" if="do.maven-snapshot">
-        <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
-        <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
-
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file" />
-			<arg value="-Durl=${maven-snapshots-repository-url}" />
-			<arg value="-DrepositoryId=${maven-snapshots-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-jar}" />
-		</artifact:mvn>
-    </target>
-    
-    <target depends="maven-init" name="maven-stage" if="do.maven-stage">
-        <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
-        <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
-
-		<!-- sign and deploy the main artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-jar}" />
-            <arg value="-Pgpg" />
-		</artifact:mvn>
-
-		<!-- sign and deploy the sources artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-sources-jar}" />
-			<arg value="-Dclassifier=sources" />
-            <arg value="-Pgpg" />
-		</artifact:mvn>
-
-		<!-- sign and deploy the javadoc artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-javadoc-jar}" />
-			<arg value="-Dclassifier=javadoc" />
-            <arg value="-Pgpg" />
-		</artifact:mvn>
-    </target>
-
-    <target depends="default,maven-init,maven-snapshot,maven-stage" name="maven-deploy" description="Deploy build to maven central repository"/>
 
 </project>
+
