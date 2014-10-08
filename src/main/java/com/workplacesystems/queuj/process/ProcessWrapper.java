@@ -105,6 +105,11 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         return getContainingServer().contains(this);
     }
 
+    /** Should this process be added to the indexes */
+    boolean addToIndex() {
+        return isAddedToServer() || getContainingServer().areIndexesLoading();
+    }
+
     public boolean isPersistent() { return isPersistent; }
 
     public ProcessPersistence<ProcessEntity<K>,K> setDetails(String process_name, Queue queue, String process_description, User user,

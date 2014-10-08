@@ -207,6 +207,10 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
         return processes.containsValue(process);
     }
 
+    public boolean areIndexesLoading() {
+        return false;
+    }
+
     public boolean scheduleOverride(ProcessWrapper process, GregorianCalendar nextRun) {
         return false;
     }

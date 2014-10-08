@@ -87,7 +87,7 @@ public final class ProcessIndexesImpl implements ProcessIndexes {
 
     private boolean updateIndexes(ProcessWrapper process, boolean add)
     {
-        if (!process.isAddedToServer())
+        if (!process.addToIndex())
             return false;
 
         if (process.isNotRun())

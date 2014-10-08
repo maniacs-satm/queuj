@@ -31,6 +31,8 @@ public interface ProcessServer<K extends Serializable & Comparable> extends com.
 
     boolean contains(ProcessWrapper<K> process);
 
+    boolean areIndexesLoading();
+
     public void delete(ProcessWrapper<K> process);
 
     public <T> T readLocked(Callback<T> callback);
