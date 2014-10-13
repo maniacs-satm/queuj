@@ -35,30 +35,30 @@ public final class Version {
     }
 
     public final static boolean isDirty() {
-        return @@DIRTY@@;
+        return @@DIRTY@@ != 0;
     }
 
     public final static String getVersionDesc() {
-        if (!getBranch().trim().equals(""))
+        if (!getBranch().trim().equals("HEAD"))
             return getVersion() + "-dev";
         return getVersion();
     }
 
     public final static String getVersionMvn() {
-        if (!getBranch().trim().equals(""))
+        if (!getBranch().trim().equals("HEAD"))
             return getVersion() + "-SNAPSHOT";
         return getVersion();
     }
 
     public final static String getBranchDesc() {
-        if (getBranch().trim().equals(""))
-            return "Tag " + getBranch();
+        if (getBranch().trim().equals("HEAD"))
+            return "Tag " + getVersion();
         return "Branch " + getBranch();
     }
 
     public final static String getVersionMini() {
         String ver = getVersion();
-        if (!getBranch().trim().equals(""))
+        if (!getBranch().trim().equals("HEAD"))
             ver += ".d";
         ver += "-" + getCommit();
         if (isDirty())

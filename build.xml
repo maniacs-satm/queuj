@@ -10,14 +10,41 @@
                 <isset property="generate.version.java"/>
             </and>
         </condition>
+        <macrodef name="git">
+            <attribute name="command"/>
+            <attribute name="dir" default="."/>
+            <attribute name="property" default="git.out"/>
+            <attribute name="resproperty" default="git.res"/>
+            <element name="args" optional="true"/>
+            <sequential>
+                <echo message="git @{command}"/>
+                <exec executable="git" dir="@{dir}" outputproperty="@{property}" resultproperty="@{resproperty}">
+                    <arg value="@{command}"/>
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
     </target>
 
     <target name="version.java" depends="init" if="do.generate.version.java">
-        <exec executable="/bin/bash">
-            <arg value="git-status.sh"/>
-        </exec>
-        <property file="git-status.properties"/>
-        <delete file="git-status.properties"/>
+        <git command="rev-parse" property="git.commit">
+            <args>
+                <arg value="--short"/>
+                <arg value="HEAD"/>
+            </args>
+        </git>
+        <git command="rev-parse" property="git.branch">
+            <args>
+                <arg value="--abbrev-ref"/>
+                <arg value="HEAD"/>
+            </args>
+        </git>
+        <git command="diff" resproperty="git.dirty">
+            <args>
+                <arg value="HEAD"/>
+                <arg value="--quiet"/>
+            </args>
+        </git>
         <copy file="src/main/java/com/workplacesystems/queuj/Version.tmpl" tofile="src/main/java/com/workplacesystems/queuj/Version.java" overwrite="true"/>
         <replace file="src/main/java/com/workplacesystems/queuj/Version.java" token="@@COMMIT@@" value="${git.commit}"/>
         <replace file="src/main/java/com/workplacesystems/queuj/Version.java" token="@@BRANCH@@" value="${git.branch}"/>
