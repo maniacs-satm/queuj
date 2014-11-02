@@ -179,6 +179,10 @@ public final class Process<K extends Serializable & Comparable> implements Seria
         return getProcess().getStatusDescription();
     }
 
+    public String getStartedTimestamp() {
+        return getProcess().getStartedTimestamp();
+    }
+
     public String getStatusImg() {
         return getProcess().getStatusImg();
     }
