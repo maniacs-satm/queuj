@@ -145,11 +145,16 @@ public class SeamTransaction implements QueujTransaction<Integer> {
             }
         });
 
-        (new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             public void run() {
                 async.action();
             }
-        })).start();
+        });
+        thread.start();
+        try {
+            thread.join();
+        }
+        catch (InterruptedException ie) {}
 
         EntityManager em = (EntityManager)Component.getInstance("entityManager");
         em.clear();
