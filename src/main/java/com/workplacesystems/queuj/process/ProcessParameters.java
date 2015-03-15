@@ -16,6 +16,7 @@
 
 package com.workplacesystems.queuj.process;
 
+import com.workplacesystems.queuj.ProcessListener;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +44,8 @@ public class ProcessParameters implements Serializable {
 
     static final String POST_PROCESSES = "POST_PROCESSES";
 
+    static final String PROCESS_LISTENERS = "PROCESS_LISTENERS";
+
     private UUID uuid;
 
     private HashMap<String, Serializable> parameters = new HashMap<String, Serializable>();
@@ -61,6 +64,12 @@ public class ProcessParameters implements Serializable {
         FilterableArrayList<SequencedProcess> post_processes = (FilterableArrayList<SequencedProcess>)getValue(POST_PROCESSES);
         if (post_processes != null)
             ic.iterate(post_processes);
+    }
+
+    void iterateProcessListeners(IterativeCallback<ProcessListener, Void> ic) {
+        FilterableArrayList<ProcessListener> process_listeners = (FilterableArrayList<ProcessListener>)getValue(PROCESS_LISTENERS);
+        if (process_listeners != null)
+            ic.iterate(process_listeners);
     }
 
     Serializable setValue(String key, Serializable value) {

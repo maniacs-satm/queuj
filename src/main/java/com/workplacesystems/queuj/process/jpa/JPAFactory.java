@@ -164,6 +164,10 @@ public class JPAFactory extends QueujFactoryImpl {
                                 process.start();
                         }
 
+                        for (ProcessWrapper process : tlProcesses.get()) {
+                            process.callListeners();
+                        }
+
                         committed = true;
                     }
                     return result;

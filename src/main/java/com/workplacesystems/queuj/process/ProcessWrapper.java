@@ -20,6 +20,7 @@ import com.workplacesystems.queuj.Access;
 import com.workplacesystems.queuj.Occurrence;
 import com.workplacesystems.queuj.Output;
 import com.workplacesystems.queuj.Process;
+import com.workplacesystems.queuj.ProcessListener;
 import com.workplacesystems.queuj.Queue;
 import com.workplacesystems.queuj.QueueOwner;
 import com.workplacesystems.queuj.Resilience;
@@ -30,6 +31,7 @@ import com.workplacesystems.utilsj.Callback;
 import com.workplacesystems.queuj.utils.QueujException;
 import com.workplacesystems.queuj.utils.User;
 import com.workplacesystems.utilsj.collections.FilterableArrayList;
+import com.workplacesystems.utilsj.collections.FilterableCollection;
 import com.workplacesystems.utilsj.collections.IterativeCallback;
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -115,7 +117,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
     public ProcessPersistence<ProcessEntity<K>,K> setDetails(String process_name, Queue queue, String process_description, User user,
             Occurrence occurrence, Visibility visibility, Access access, Resilience resilience, Output output,
             FilterableArrayList<? extends SequencedProcess> pre_processes, FilterableArrayList<? extends SequencedProcess> post_processes,
-            boolean keep_completed, Locale locale, Map<String,Object> implementation_options) {
+            boolean keep_completed, FilterableArrayList<? extends ProcessListener> process_listeners, Locale locale, Map<String,Object> implementation_options) {
 
         ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
 
@@ -124,6 +126,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         ProcessParameters parameters = new ProcessParameters();
         parameters.setValue(ProcessParameters.POST_PROCESSES, post_processes);
         parameters.setValue(ProcessParameters.PRE_PROCESSES, pre_processes);
+        parameters.setValue(ProcessParameters.PROCESS_LISTENERS, process_listeners);
         process.setParameters(parameters);
 
         process.setImplementationOptions(implementation_options);
@@ -607,6 +610,16 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
 
     public void notifySelf() {
         ((ProcessImplServer)getContainingServer()).notifyProcess(this);
+    }
+
+    public void callListeners() {
+        getParameters().iterateProcessListeners(new IterativeCallback<ProcessListener,Void>() {
+
+            @Override
+            protected void nextObject(ProcessListener l) {
+                l.processUpdated(new Process<K>(ProcessWrapper.this));
+            }
+        });
     }
 
     private ProcessOutputable report_file = null;

@@ -70,6 +70,11 @@ public class QueujFactoryImpl extends QueujFactory<Integer> {
                         process.start();
                 }
 
+                if (result instanceof ProcessWrapper) {
+                    ProcessWrapper process = (ProcessWrapper)result;
+                    process.callListeners();
+                }
+
                 return result;
             }
         };

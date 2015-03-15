@@ -71,6 +71,8 @@
       <artifactId>commons-pool</artifactId>
       <version>1.5.4</version>
     </dependency>
+
+    <!-- JPA -->
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
@@ -78,6 +80,8 @@
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
+
+    <!-- JBoss Seam 2.x support -->
     <dependency>
       <groupId>org.jboss.seam</groupId>
       <artifactId>jboss-seam</artifactId>
@@ -85,6 +89,7 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- Test -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

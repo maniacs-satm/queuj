@@ -142,6 +142,10 @@ public class SeamTransaction implements QueujTransaction<Integer> {
                     else
                         process.start();
                 }
+
+                for (final ProcessWrapper process : context.processes) {
+                    process.callListeners();
+                }
             }
         });
 

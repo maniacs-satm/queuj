@@ -102,6 +102,9 @@ public class ProcessBuilder
     /** Should completed Processes without a further run time be deleted or kept. */
     private boolean keep_completed = false;
 
+    /** List of process listeners */
+    private final FilterableArrayList<ProcessListener> process_listeners = new FilterableArrayList<ProcessListener>();
+
     private String parent_key = null;
     
     protected boolean trace = false;
@@ -318,6 +321,13 @@ public class ProcessBuilder
     }
 
     /**
+     * Register listeners that will be called when the process is updated.
+     */
+    public void registerListener(ProcessListener listener) {
+        process_listeners.add(listener);
+    }
+
+    /**
      * Set options to be used directly by the queuj implementation
      */
     public void setImplementationOption(String option_key, Object option_value)
@@ -342,8 +352,8 @@ public class ProcessBuilder
                 ProcessPersistence<ProcessEntity<K>,K> processHome = 
                         process.setDetails(process_name, queue, process_description, user,
                                            occurrence, visibility, access, resilience, output,
-                                           pre_processes, post_processes, keep_completed, locale,
-                                           implementation_options);
+                                           pre_processes, post_processes, keep_completed,
+                                           process_listeners, locale, implementation_options);
 
                 if (report_type != null)
                     process.setReportType(report_type);
