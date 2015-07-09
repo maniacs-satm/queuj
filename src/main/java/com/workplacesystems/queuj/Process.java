@@ -57,6 +57,11 @@ public final class Process<K extends Serializable & Comparable> implements Seria
         return process;
     }
 
+    public boolean exists() {
+        ProcessWrapper pw = getProcess();
+        return pw != null && !pw.isDeleted();
+    }
+
     public String getQueueOwner() {
         return queueOwner;
     }

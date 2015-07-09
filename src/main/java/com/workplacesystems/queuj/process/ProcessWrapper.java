@@ -266,7 +266,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         }
     }
 
-    boolean isDeleted() {
+    public boolean isDeleted() {
         return deleted;
     }
 
