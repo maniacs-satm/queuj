@@ -21,7 +21,6 @@ import com.workplacesystems.queuj.occurrence.RunFiniteTimes;
 import com.workplacesystems.queuj.occurrence.RunOnce;
 import com.workplacesystems.queuj.process.QueujFactory;
 import com.workplacesystems.queuj.process.java.JavaProcessBuilder;
-import com.workplacesystems.queuj.process.java.JavaProcessRunner;
 import com.workplacesystems.queuj.resilience.RunOnlyOnce;
 import com.workplacesystems.queuj.schedule.RelativeScheduleBuilder;
 import java.util.Locale;
@@ -97,11 +96,6 @@ public class UnexpectedFailureTest extends TestCase {
                 throw new NullPointerException();
             return true;
         }
-    }
-
-    public static class EmptyRunner extends JavaProcessRunner {
-
-        public void run() {}
     }
 
     public void testRestrictionFailure() {

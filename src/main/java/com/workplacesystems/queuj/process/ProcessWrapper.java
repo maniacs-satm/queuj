@@ -743,6 +743,11 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         final BatchProcessServer bps = getQueue().getBatchProcessServer();
         bps.resetSection(this, previousRunFailed);
 
+        /**
+         * optional pre process operations
+         */
+        getParameters().iteratePreProcesses(getSequencedProcessesIterativeCallback(run_status));
+
         /* Loop round all sections until a run_error occurs or no more sections exist.
          * A run_error consists of a non-zero return code or a thrown exception.
          * On a run_error a rollback occurs otherwise the transaction is committed.
@@ -852,40 +857,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
          * the state of the section run, but it must be noted that the Process will still report
          * a status of running.
          */
-        getParameters().iteratePostProcesses(new IterativeCallback<SequencedProcess,Void>() {
-            @Override
-            protected void nextObject(final SequencedProcess post_process)
-            {
-                try
-                {
-                    if (post_process.needsTransaction()) {
-                        doTransaction(new Callback() {
-
-                            @Override
-                            protected void doAction() {
-                                ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
-
-                                post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
-
-                                if (isPersistent) processHome.update();
-                                _return(ProcessWrapper.this);
-                            }
-                        });
-                    }
-                    else
-                        post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
-                }
-                catch (Exception e)
-                {
-                    run_status.exception_thrown = true;
-                    new QueujException(e);
-                }
-                finally
-                {
-                    run_status.run_error = run_status.exception_thrown || run_status.result_code.intValue() != 0;
-                }
-            }
-        });
+        getParameters().iteratePostProcesses(getSequencedProcessesIterativeCallback(run_status));
 
         /**
          * Finally update the Process with the cummulative status thats been collected as the various parts
@@ -925,6 +897,44 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         run_status.force_reschedule_exception = fre;
         if (!fre.commitCurrentSection())
             throw new ForceRollbackException();
+    }
+
+    private IterativeCallback<SequencedProcess,Void> getSequencedProcessesIterativeCallback(final ProcessRunStatus run_status)
+    {
+        return new IterativeCallback<SequencedProcess,Void>() {
+            @Override
+            protected void nextObject(final SequencedProcess post_process)
+            {
+                try
+                {
+                    if (post_process.needsTransaction()) {
+                        doTransaction(new Callback() {
+
+                            @Override
+                            protected void doAction() {
+                                ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
+
+                                post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
+
+                                if (isPersistent) processHome.update();
+                                _return(ProcessWrapper.this);
+                            }
+                        });
+                    }
+                    else
+                        post_process.action(new Process<K>(ProcessWrapper.this), process.getUserId(), run_status.run_error);
+                }
+                catch (Exception e)
+                {
+                    run_status.exception_thrown = true;
+                    new QueujException(e);
+                }
+                finally
+                {
+                    run_status.run_error = run_status.exception_thrown || run_status.result_code.intValue() != 0;
+                }
+            }
+        };
     }
 
     private void checkForceReschedule(ProcessRunStatus run_status, RuntimeException re) {
