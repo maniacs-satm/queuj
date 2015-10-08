@@ -146,4 +146,26 @@ public class UnexpectedFailureTest extends TestCase {
         assertEquals(process.isComplete(), true);
         assertEquals(process.getAttempt(), 0);
     }
+
+    public void testInvalidAttempt() {
+        JavaProcessBuilder pb = QueueFactory.DEFAULT_QUEUE.newProcessBuilder(Locale.getDefault());
+        pb.setProcessName("InvalidAttemptTest");
+        pb.setProcessDescription("Invalid Attempt Test");
+        pb.setProcessPersistence(false);
+
+        pb.setProcessOccurrence(runOnceOccurrence);
+        pb.setProcessResilience(runOnlyOnce);
+
+        pb.setProcessDetails(new FailRunner(), "run", new Class[] {}, new Object[] {});
+
+        Process process = pb.newProcess();
+
+        process.attach();
+
+        // Attempt shouldn't be 0 but can be if job queue failed in unexpected way
+        process.getProcessEntity().setAttempt(0);
+
+        // Shouldn't throw exception
+        process.getNextRunTime();
+    }
 }

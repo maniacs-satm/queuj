@@ -108,7 +108,7 @@ public abstract class Resilience implements Serializable
     public final GregorianCalendar getNextRunTime(Occurrence occurrence, boolean is_failed, int attempt_count, GregorianCalendar schedule_start, int run_count)
     {
         int failure_attempts = 0;
-        if (is_failed && failure_schedule != null)
+        if (is_failed && failure_schedule != null && attempt_count > 0)
         {
             GregorianCalendar next_run = failure_schedule.getNextRunTime(schedule_start, attempt_count - 1);
             if (next_run != null)
