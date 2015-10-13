@@ -420,12 +420,6 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         }, doStart);
     }
 
-    void updateRunErrorAndRestart() {
-        updateRunError();
-        if (updateRestart())
-            restart0();
-    }
-
     public void updateRunError() {
         doTransaction(new Callback() {
 
@@ -462,7 +456,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
             });
             return true;
         }
-        return false;
+        return isRestarted();
     }
 
     void updateRunning(final GregorianCalendar runTime) {
@@ -605,7 +599,10 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
         if (deleted)
             return false;
 
-        return restart0();
+        if (updateRestart())
+            return restart0();
+
+        return false;
     }
 
     public void notifySelf() {
