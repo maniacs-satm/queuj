@@ -449,6 +449,7 @@ public class ProcessWrapper<K extends Serializable & Comparable> implements Comp
                     ProcessPersistence<ProcessEntity<K>,K> processHome = getProcessPersistence();
                     log.debug("ProcessWrapper.updateRestart called for " + process.getProcessId() + "(" + process.getVersion() + ")");
                     process.setStatus(Status.RESTARTED);
+                    process.setAttempt(0);
                     process.setResultCode(0);
                     if (isPersistent) processHome.update();
                     _return(ProcessWrapper.this);
