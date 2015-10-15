@@ -108,7 +108,7 @@ public class ProcessImplServer<K extends Serializable & Comparable> implements P
 
                     @Override
                     protected void nextObject(ProcessWrapper process) {
-                        if (process.isFailed())
+                        if (process.isFailed() && !process.isRunError())
                             process.updateRunError();
 
                         if (process.isRestarted())
