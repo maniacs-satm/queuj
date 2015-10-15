@@ -140,7 +140,16 @@
 	        <target>1.6</target>
 	      </configuration>
 	    </plugin>
-      </plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.17</version>
+        <configuration>
+          <parallel>none</parallel>
+          <forkMode>pertest</forkMode>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <distributionManagement>

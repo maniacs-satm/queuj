@@ -37,9 +37,13 @@ public abstract class QueujFactory<K extends Serializable & Comparable> {
 
     private final static Log log = LogFactory.getLog(QueujFactory.class);
 
-    private static final QueujFactory<?> instance;
+    private static QueujFactory<?> instance;
 
     static {
+        setInstance();
+    }
+
+    static void setInstance() {
         try {
             QueujFactory<?> instance0 = null;
 

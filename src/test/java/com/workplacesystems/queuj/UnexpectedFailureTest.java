@@ -16,7 +16,6 @@
 
 package com.workplacesystems.queuj;
 
-import com.workplacesystems.queuj.Process;
 import com.workplacesystems.queuj.occurrence.RunFiniteTimes;
 import com.workplacesystems.queuj.occurrence.RunOnce;
 import com.workplacesystems.queuj.process.QueujFactory;
