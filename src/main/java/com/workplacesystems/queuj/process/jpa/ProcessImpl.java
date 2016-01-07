@@ -59,21 +59,21 @@ public class ProcessImpl implements ProcessEntity<Integer>, Serializable {
     private String processName;//" max_length="50" key_field="true" mandatory="true"/>
     private Date creationTimestamp;//" key_field="true" mandatory="true" ordering_field="true"/>
     private String description;//" max_length="50"/>
-    private Date scheduledTimestamp;
-    private Date startedTimestamp;
+    private volatile Date scheduledTimestamp;
+    private volatile Date startedTimestamp;
     private ProcessParameters parameters;
     private Queue queue;
     private String userId;
     private Locale locale;
-    private Status status;
+    private volatile Status status;
     private Occurrence occurrence;
     private Access access;
     private Visibility visibility;
     private Resilience resilience;
     private Output output;
-    private int attempt;
-    private int runCount;
-    private int resultCode;
+    private volatile int attempt;
+    private volatile int runCount;
+    private volatile int resultCode;
     private boolean associatedReport;
     private boolean keepCompleted;
 
