@@ -111,8 +111,8 @@ public class UnexpectedFailureTest extends TestCase {
 
         process.attach();
 
-        assertEquals(process.isFailed(), true);
-        assertEquals(process.getAttempt(), 1);
+        assertTrue(process.isFailed());
+        assertEquals(1, process.getAttempt());
 
         pb.setProcessResilience(runOnlyOnce);
 
@@ -122,8 +122,8 @@ public class UnexpectedFailureTest extends TestCase {
             process.attach();
         } while (process.isFailed() && process.getNextRunTime() != null);
 
-        assertEquals(process.isFailed(), true);
-        assertEquals(process.getAttempt(), 2);
+        assertTrue(process.isFailed());
+        assertEquals(2, process.getAttempt());
 
         pb = RESTRICTION_FAIL_ONCE_QUEUE.newProcessBuilder(Locale.getDefault());
         pb.setProcessName("FailTest2");
@@ -142,8 +142,8 @@ public class UnexpectedFailureTest extends TestCase {
             process.attach();
         } while (process.isFailed() && process.getNextRunTime() != null);
 
-        assertEquals(process.isComplete(), true);
-        assertEquals(process.getAttempt(), 0);
+        assertTrue(process.isComplete());
+        assertEquals(0, process.getAttempt());
     }
 
     public void testInvalidAttempt() {
@@ -165,6 +165,11 @@ public class UnexpectedFailureTest extends TestCase {
         process.getProcessEntity().setAttempt(0);
 
         // Shouldn't throw exception
-        process.getNextRunTime();
+        try {
+            process.getNextRunTime();
+        }
+        catch (Exception e) {
+            fail();
+        }
     }
 }
