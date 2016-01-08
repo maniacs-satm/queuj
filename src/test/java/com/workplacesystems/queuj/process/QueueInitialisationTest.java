@@ -194,6 +194,7 @@ public class QueueInitialisationTest extends TestCase {
         pi.setProcessName("Test");
         pi.setQueue(QueueFactory.DEFAULT_QUEUE);
         pi.setResilience(new RunOnlyOnce());
+        pi.setKeepCompleted(true);
 
         RunOnce occurrence = new RunOnce();
         RelativeScheduleBuilder rsb = occurrence.newRelativeScheduleBuilder();
